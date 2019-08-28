@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'fe.igscraper'
-version '1.2'
+
 
 def mainClassName = "fe.igscraper.Main"
 
@@ -39,7 +39,9 @@ jar {
     }
 
     manifest {
-        attributes("Main-Class": "$mainClassName")
+        attributes("Main-Class": "$mainClassName",
+                   "Build-Timestamp": java.time.LocalDateTime.now()
+        )
     }
 }
 
