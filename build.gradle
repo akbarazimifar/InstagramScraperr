@@ -1,9 +1,12 @@
+import java.time.LocalDateTime
+
 plugins {
     id 'java'
     id 'net.nemerosa.versioning' version '2.6.1'
 }
 
 group 'fe.igscraper'
+version = versioning.info.full + "-" + (versioning.info.tag == null ? "dev" : versioning.info.tag)
 
 
 def mainClassName = "fe.igscraper.Main"
@@ -26,9 +29,6 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
-
-
-
 jar {
     from configurations.compile.collect {
         it.isDirectory() ? it : zipTree(it).matching {
@@ -39,10 +39,10 @@ jar {
     }
 
     manifest {
-        attributes("Main-Class": "$mainClassName",
-                   "Built-At": java.time.LocalDateTime.now(),
+        attributes("Main-Class": mainClassName,
+                   "Built-At": LocalDateTime.now(),
                    "Commit": versioning.info.full,
-                   "Version": versioning.info.tag,
+                   "Version": versioning.info.tag == null ? "dev" : versioning.info.tag,
         )
     }
 }
