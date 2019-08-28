@@ -40,7 +40,8 @@ jar {
 
     manifest {
         attributes("Main-Class": "$mainClassName",
-                   "Build-Timestamp": java.time.LocalDateTime.now()
+                   "Build-Timestamp": java.time.LocalDateTime.now(),
+                   "Version": "$versioning.info.full-$versioning.info.tag"
         )
     }
 }
