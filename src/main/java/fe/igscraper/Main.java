@@ -17,8 +17,7 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
 public class Main {
-    private Logger logger;
-    public static final String APP_NAME = "InstagramScraper";
+    private static final String APP_NAME = "InstagramScraper";
 
     public Main(final String configPath, boolean enableDownloadCompleteSound, boolean metadata) {
         BinaryVersion binaryVersion = new BinaryVersion(true);
@@ -29,12 +28,11 @@ public class Main {
             e.printStackTrace();
         }
 
-        this.logger = new Logger(String.format("%s-%s", APP_NAME, binaryVersion.toString()), true);
-        this.logger.print(Logger.Type.INFO, "Sound: %b, Metadata: %b", enableDownloadCompleteSound, metadata);
-        this.logger.print(Logger.Type.INFO, "Loading config from %s", configPath);
+        Logger logger = new Logger(String.format("%s-%s", APP_NAME, binaryVersion.toString()), true);
+        logger.print(Logger.Type.INFO, "Sound: %b, Metadata: %b", enableDownloadCompleteSound, metadata);
+        logger.print(Logger.Type.INFO, "Loading config from %s", configPath);
         if (enableDownloadCompleteSound) {
-            PlatformImpl.startup(() -> {
-            });
+            PlatformImpl.startup(() -> {});
         }
 
         try {
@@ -51,7 +49,7 @@ public class Main {
             Util.writeJson(config, configLoader.getJsonConfig());
 
             long time = System.currentTimeMillis() - start;
-            this.logger.print(Logger.Type.INFO, "Elapsed time: %s", Duration.of(time, ChronoUnit.MILLIS).toString().substring(2));
+            logger.print(Logger.Type.INFO, "Elapsed time: %s", Duration.of(time, ChronoUnit.MILLIS).toString().substring(2));
         } catch (IOException e) {
             e.printStackTrace();
         }
