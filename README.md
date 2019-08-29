@@ -1,4 +1,4 @@
-# Scraper
+# InstagramScraper
 
 Java commandline Instagram scraper to easily download new content
 
@@ -18,7 +18,7 @@ Java commandline Instagram scraper to easily download new content
 
 # Downloads
 
-* [Releases](/-/releases)
+* [Releases](https://gitlab.com/grrfe/InstagramScraper/-/releases)
 
 # Building
 
@@ -30,9 +30,7 @@ Prerequisites: `Git`, `Gradle`, `JDK 8`, `(linux: OpenJFX 8)`
 
 Binary will be located in `build/libs`
 
-# How to setup a config 
-
-* [Instagram](config_example/instagram_config_tutorial.md)
+# [How to setup a config ](config_example/instagram_config_tutorial.md)
 
 # How to use
 
