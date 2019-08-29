@@ -2,6 +2,7 @@ import java.time.LocalDateTime
 
 plugins {
     id 'java'
+    id 'signing'
     id 'net.nemerosa.versioning' version '2.6.1'
 }
 
@@ -30,6 +31,11 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
+
+signing {
+    sign configurations.archives
+}
+
 jar {
     from configurations.compile.collect {
         it.isDirectory() ? it : zipTree(it).matching {
@@ -48,4 +54,5 @@ jar {
         )
     }
 }
+
 
