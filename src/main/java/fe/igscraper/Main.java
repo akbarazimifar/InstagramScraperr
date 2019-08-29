@@ -1,43 +1,35 @@
 package fe.igscraper;
 
-import com.github.zafarkhaja.semver.*;
-import com.sun.javafx.application.*;
+import com.sun.javafx.application.PlatformImpl;
 import fe.binaryversion.BinaryVersion;
-import fe.igscraper.instagram.util.*;
-import com.google.gson.*;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.time.*;
-import java.time.temporal.*;
-import java.io.*;
-import java.util.Enumeration;
-import java.util.Map;
-import java.util.jar.Attributes;
-import java.util.jar.JarInputStream;
-import java.util.jar.Manifest;
-
-import fe.igscraper.mediaplayer.*;
+import fe.igscraper.instagram.util.Util;
+import fe.igscraper.mediaplayer.Player;
 import fe.logger.Logger;
-import net.sourceforge.argparse4j.*;
-import net.sourceforge.argparse4j.impl.*;
-import net.sourceforge.argparse4j.inf.*;
-import javafx.beans.value.*;
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.impl.Arguments;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import net.sourceforge.argparse4j.inf.Namespace;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 public class Main {
     private Logger logger;
-    private BinaryVersion binaryVersion = new BinaryVersion(true);
     public static final String APP_NAME = "InstagramScraper";
 
     public Main(final String configPath, boolean enableDownloadCompleteSound, boolean metadata) {
+        BinaryVersion binaryVersion = new BinaryVersion(true);
         try {
-            this.binaryVersion.loadVersion();
-            this.binaryVersion.checkUpdate();
+            binaryVersion.loadVersion();
+            binaryVersion.checkUpdate();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        this.logger = new Logger(String.format("%s-%s", APP_NAME, this.binaryVersion.toString()), true);
+        this.logger = new Logger(String.format("%s-%s", APP_NAME, binaryVersion.toString()), true);
         this.logger.print(Logger.Type.INFO, "Sound: %b, Metadata: %b", enableDownloadCompleteSound, metadata);
         this.logger.print(Logger.Type.INFO, "Loading config from %s", configPath);
         if (enableDownloadCompleteSound) {
