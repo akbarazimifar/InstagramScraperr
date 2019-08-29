@@ -19,23 +19,18 @@ import java.time.temporal.ChronoUnit;
 public class Main {
     private static final String APP_NAME = "InstagramScraper";
 
-    public Main(final String configPath, boolean enableDownloadCompleteSound, boolean metadata) {
-        BinaryVersion binaryVersion = new BinaryVersion(true);
+    public Main(String configPath, boolean enableDownloadCompleteSound, boolean metadata) {
         try {
-            binaryVersion.loadVersion();
-            binaryVersion.checkUpdate();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            BinaryVersion binaryVersion = new BinaryVersion(Main.class, true).loadVersion().checkUpdate();
 
-        Logger logger = new Logger(String.format("%s-%s", APP_NAME, binaryVersion.toString()), true);
-        logger.print(Logger.Type.INFO, "Sound: %b, Metadata: %b", enableDownloadCompleteSound, metadata);
-        logger.print(Logger.Type.INFO, "Loading config from %s", configPath);
-        if (enableDownloadCompleteSound) {
-            PlatformImpl.startup(() -> {});
-        }
+            Logger logger = new Logger(String.format("%s-%s", APP_NAME, binaryVersion.toString()), true);
+            logger.print(Logger.Type.INFO, "Sound: %b, Metadata: %b", enableDownloadCompleteSound, metadata);
+            logger.print(Logger.Type.INFO, "Loading config from %s", configPath);
+            if (enableDownloadCompleteSound) {
+                PlatformImpl.startup(() -> {
+                });
+            }
 
-        try {
             long start = System.currentTimeMillis();
             File config = new File(configPath);
 
@@ -64,7 +59,7 @@ public class Main {
     }
 
     public static void main(final String[] args) {
-        ArgumentParser parser = ArgumentParsers.newFor("InstagramScraper").build().defaultHelp(true).description("Scrape a list of given Instagram accounts incrementally");
+        ArgumentParser parser = ArgumentParsers.newFor(APP_NAME).build().defaultHelp(true).description("Scrape a list of given Instagram accounts incrementally");
         parser.addArgument("config").help("Path to the config used by the scraper");
         parser.addArgument("-s", "--enablecompletesound").action(Arguments.storeTrue()).help("Play a sound when scraping is done");
         parser.addArgument("-m", "--metadata").action(Arguments.storeTrue()).help("Scrape metadata of content and store it");

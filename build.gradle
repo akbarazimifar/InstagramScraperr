@@ -24,9 +24,8 @@ dependencies {
     compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.28.0'
     compile group: 'com.gitlab.grrfe', name: 'Logger', version: '1.0.0'
     compile group: 'com.gitlab.grrfe', name: 'Request', version: '1.0.0'
-    compile group: 'com.gitlab.grrfe', name: 'BinaryVersion', version: '1.0.0'
+    compile group: 'com.gitlab.grrfe', name: 'BinaryVersion', version: '2.0.0'
     compile group: 'net.sourceforge.argparse4j', name: 'argparse4j', version: '0.8.1'
-    compile group: 'com.github.zafarkhaja', name: 'java-semver', version: '0.9.0'
     compile group: 'com.google.code.gson', name: 'gson', version: '2.8.5'
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
