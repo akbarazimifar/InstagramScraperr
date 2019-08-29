@@ -53,9 +53,10 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         if (enableDownloadCompleteSound) {
-            final Player player = new Player();
-            player.play(Main.class.getResource("/resources/download-complete.wav").toString());
+            Player player = new Player();
+            player.play(Main.class.getResource("/download-complete.wav").toString());
             player.finishedProperty().addListener((v, o, n) -> System.exit(0));
         } else {
             System.exit(0);
