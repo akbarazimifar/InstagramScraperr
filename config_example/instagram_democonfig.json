@@ -31,7 +31,6 @@
   "download_users": [
       {
         "username": "%INSTAGRAM_USER_TO_SCRAPE%",
-        "id": "%INSTAGRAM_USERID%",
         "overwrite_files": false,
         "save_folder": "%SAVE_FOLDER%",
         "save": [
@@ -44,7 +43,6 @@
 
       {
           "username": "%INSTAGRAM_USER_TO_SCRAPE2%",
-          "id": "%INSTAGRAM_USERID%",
           "overwrite_files": false,
           "save_folder": "%SAVE_FOLDER%",
           "save": [
@@ -56,15 +54,28 @@
       },
       {
           "username": "%INSTAGRAM_USER_TO_SCRAPE3%",
-          "id": "%INSTAGRAM_USERID3%",
           "overwrite_files": false,
           "save_folder": "%SAVE_FOLDER%",
           "save": [
             "posts",
             "stories",
             "profilePictures"
-          ],
-          "instagram_login": "%INSTAGRAM_USERNAME3%"
-      }
+          ]
+      },
+    {
+      "username": [
+        "%INSTAGRAM_USER_TO_SCRAPE3%",
+        "%INSTAGRAM_USER_TO_SCRAPE4%",
+        "%INSTAGRAM_USER_TO_SCRAPE5%"
+      ],
+      "overwrite_files": false,
+      "save_folder": "%SAVE_FOLDER%/%username%",
+      "save": [
+        "posts",
+        "stories",
+        "profilePictures"
+      ],
+      "instagram_login": "%INSTAGRAM_USERNAME3%"
+    }
   ]
 }

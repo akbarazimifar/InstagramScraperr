@@ -298,6 +298,21 @@ if not given, the scraper will rotate through all existing accounts.
 
     After the last `}`, there is **NO** comma!
 
+If a lot of accounts you want to scrape have things in common, you can also add them by replacing 
+
+`"username": "%INSTAGRAM_USER_TO_SCRAPE%"`
+
+with 
+
+```
+"username": [
+    "%INSTAGRAM_USER_TO_SCRAPE%",
+    "%INSTAGRAM_USER_TO_SCRAPE2%",
+    "%INSTAGRAM_USER_TO_SCRAPE3%",
+    .
+    .
+]
+```
 
 
    
@@ -314,7 +329,13 @@ Repeat this for every account you want to scrape:
            .
         },
         {
-          "username": "%INSTAGRAM_USER_TO_SCRAPE%",
+          "username": [
+              "%INSTAGRAM_USER_TO_SCRAPE%",
+              "%INSTAGRAM_USER_TO_SCRAPE2%",
+              "%INSTAGRAM_USER_TO_SCRAPE3%",
+              .
+              .
+          ],
           .
           .
           .
