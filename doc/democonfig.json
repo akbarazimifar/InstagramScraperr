@@ -1,0 +1,70 @@
+{
+  "instagram_logins": [
+    {
+          "username": "%INSTAGRAM_USERNAME%",
+          "password": "%INSTAGRAM_PASSWORD%",
+          "proxy": {
+              "ip": "%PROXY_IP%",
+              "port": %PROXY_PORT%,
+              "type": "%PROXY_TYPE%",
+              "auth": {
+                  "username": "%PROXY_USERNAME%",
+                  "password": "%PROXY_PASSWORD%"
+              }
+          }
+      },
+      {
+          "username": "%INSTAGRAM_USERNAME2%",
+          "password": "%INSTAGRAM_PASSWORD2%"
+      },
+      {
+          "username": "%INSTAGRAM_USERNAME3%",
+          "password": "%INSTAGRAM_PASSWORD3%",
+          "proxy": {
+              "ip": "%PROXY_IP2%",
+              "port": %PROXY_PORT2%,
+              "type": "%PROXY_TYPE2%"
+          }
+      }
+  ],
+  "database_path": "%DATA_BASEPATH%",
+  "download_users": [
+      {
+        "username": "%INSTAGRAM_USER_TO_SCRAPE%",
+        "id": "%INSTAGRAM_USERID%",
+        "overwrite_files": false,
+        "save_folder": "%SAVE_FOLDER%",
+        "save": [
+          "posts",
+          "stories",
+          "profilePictures"
+        ],
+        "instagram_login": "%INSTAGRAM_USERNAME%"
+      },
+
+      {
+          "username": "%INSTAGRAM_USER_TO_SCRAPE2%",
+          "id": "%INSTAGRAM_USERID%",
+          "overwrite_files": false,
+          "save_folder": "%SAVE_FOLDER%",
+          "save": [
+            "posts",
+            "stories",
+            "profilePictures"
+          ],
+          "instagram_login": "%INSTAGRAM_USERNAME2%"
+      },
+      {
+          "username": "%INSTAGRAM_USER_TO_SCRAPE3%",
+          "id": "%INSTAGRAM_USERID3%",
+          "overwrite_files": false,
+          "save_folder": "%SAVE_FOLDER%",
+          "save": [
+            "posts",
+            "stories",
+            "profilePictures"
+          ],
+          "instagram_login": "%INSTAGRAM_USERNAME3%"
+      }
+  ]
+}
