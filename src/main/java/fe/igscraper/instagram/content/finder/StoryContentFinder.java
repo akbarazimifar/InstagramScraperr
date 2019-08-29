@@ -21,7 +21,7 @@ public class StoryContentFinder extends ContentFinder {
     public List<InstagramContent> findContent(InstagramUser iu, List<String> ignore) throws IOException {
         List<InstagramContent> stories = new ArrayList<InstagramContent>();
         JsonObject metadataObj = new JsonObject();
-        JsonElement element = iu.readGetRequestJson(String.format("https://www.instagram.com/graphql/query/?query_hash=45246d3fe16ccc6577e0bd297a5db1ab&variables={\"reel_ids\":[\"%s\"],\"tag_names\":[],\"location_ids\":[],\"highlight_reel_ids\":[],\"precomposed_overlay\":false}", iu.getId()));
+        JsonElement element = iu.readGetRequestJson(String.format(STORY_URL, iu.getId()));
         JsonArray reelsMedia = element.getAsJsonObject().getAsJsonObject("data").getAsJsonArray("reels_media");
         if (reelsMedia.size() > 0) {
             JsonObject reelsMedia2 = reelsMedia.get(0).getAsJsonObject();

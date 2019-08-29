@@ -18,15 +18,15 @@ public class CollectionContentFinder extends ContentFinder {
 
     @Override
     public List<InstagramContent> findContent(InstagramUser iu, List<String> ignore) throws IOException {
-        Map<String, String> collectionIds = new HashMap<String, String>();
-        List<InstagramContent> collections = new ArrayList<InstagramContent>();
-        JsonElement element = iu.readGetRequestJson(String.format("https://www.instagram.com/graphql/query/?query_hash=7c16654f22c819fb63d1183034a5162f&variables={\"user_id\":\"%s\",\"include_chaining\":false,\"include_reel\":false,\"include_suggested_users\":false,\"include_logged_out_extras\":false,\"include_highlight_reels\":true}", iu.getId()));
+        Map<String, String> collectionIds = new HashMap<>();
+        List<InstagramContent> collections = new ArrayList<>();
+        JsonElement element = iu.readGetRequestJson(String.format(COLLECTION_OVERVIEW_URL, iu.getId()));
         JsonArray edges = element.getAsJsonObject().getAsJsonObject("data").getAsJsonObject("user").getAsJsonObject("edge_highlight_reels").getAsJsonArray("edges");
         for (JsonElement obj : edges) {
             JsonObject node = obj.getAsJsonObject().getAsJsonObject("node");
             collectionIds.put(node.getAsJsonPrimitive("title").getAsString(), node.getAsJsonPrimitive("id").getAsString());
         }
-        JsonElement resourceElement = iu.readGetRequestJson(String.format("https://www.instagram.com/graphql/query/?query_hash=712a7914241d7e01719fb760a810fbfc&variables={\"reel_ids\":[],\"tag_names\":[],\"location_ids\":[],\"highlight_reel_ids\":[%s],\"precomposed_overlay\":false,\"show_story_viewer_list\":true,\"story_viewer_fetch_count\":50,\"story_viewer_cursor\":\"\"}", this.toIdString(collectionIds.values())));
+        JsonElement resourceElement = iu.readGetRequestJson(String.format(COLLECTION_SOURCE_URL, this.toIdString(collectionIds.values())));
         JsonArray reelsMedia = resourceElement.getAsJsonObject().getAsJsonObject("data").getAsJsonArray("reels_media");
         int count = 0;
         for (String collectionName : collectionIds.keySet()) {

@@ -16,11 +16,11 @@ public class PostContentFinder extends ContentFinder {
 
     @Override
     public List<InstagramContent> findContent(InstagramUser iu, List<String> ignore) throws IOException {
-        List<InstagramContent> posts = new ArrayList<InstagramContent>();
+        List<InstagramContent> posts = new ArrayList<>();
         boolean hasNext = true;
         String nextToken = "null";
         while (hasNext) {
-            JsonElement element = iu.readGetRequestJson(String.format("https://www.instagram.com/graphql/query/?query_id=17888483320059182&variables={\"id\":\"%s\",\"first\":50,\"after\":%s}", iu.getId(), nextToken));
+            JsonElement element = iu.readGetRequestJson(String.format(POST_URL, iu.getId(), nextToken));
             JsonObject edgeOwnerToTimelineMedia = element.getAsJsonObject().getAsJsonObject("data").getAsJsonObject("user").getAsJsonObject("edge_owner_to_timeline_media");
             JsonObject pageInfo = edgeOwnerToTimelineMedia.getAsJsonObject("page_info");
             for (JsonElement obj : edgeOwnerToTimelineMedia.getAsJsonArray("edges")) {

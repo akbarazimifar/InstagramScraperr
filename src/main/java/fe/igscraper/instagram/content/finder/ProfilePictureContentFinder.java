@@ -17,8 +17,8 @@ public class ProfilePictureContentFinder extends ContentFinder
     
     @Override
     public List<InstagramContent> findContent( InstagramUser iu,  List<String> ignore) throws IOException {
-         List<InstagramContent> profilePictures = new ArrayList<InstagramContent>();
-         JsonElement element = iu.readGetRequestJson(String.format("https://i.instagram.com/api/v1/users/%s/info/", iu.getId()));
+         List<InstagramContent> profilePictures = new ArrayList<>();
+         JsonElement element = iu.readGetRequestJson(String.format(PROFILE_PIC_URL, iu.getId()));
          JsonObject hdPb = element.getAsJsonObject().getAsJsonObject("user").getAsJsonObject("hd_profile_pic_url_info");
          String url = hdPb.getAsJsonPrimitive("url").getAsString();
          String filename = Util.urlToFileName(url);

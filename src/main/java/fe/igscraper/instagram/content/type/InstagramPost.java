@@ -44,7 +44,7 @@ public class InstagramPost extends InstagramContent {
     }
 
     private void findDirectUrls() throws IOException {
-        JsonElement element = this.instagramUser.readGetRequestJson(String.format("https://www.instagram.com/p/%s/?__a=1", this.shortCode));
+        JsonElement element = this.instagramUser.readGetRequestJson(String.format(POST_JSON, this.shortCode));
         JsonObject shortCodeMedia = element.getAsJsonObject().getAsJsonObject("graphql").getAsJsonObject("shortcode_media");
         if (this.metadataEnabled) {
             JsonObject obj = new JsonObject();

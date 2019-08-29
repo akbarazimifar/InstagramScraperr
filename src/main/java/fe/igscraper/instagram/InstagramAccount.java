@@ -95,12 +95,12 @@ public class InstagramAccount {
         this.request.putCookie("sessionid", null);
         InstagramRequest ir = new InstagramRequest(this.proxy, true);
         ir.putCookies(new String[][]{{"ig_pr", "1"}, {"ig_vw", "1920"}, {"ig_cb", "1"}});
-        HttpURLConnection midCon = ir.sendGetRequest("https://www.instagram.com/web/__mid/");
+        HttpURLConnection midCon = ir.sendGetRequest(MID_URL);
         String csrftoken = Request.findCookie("csrftoken", midCon);
         String mid = Request.findCookie("mid", midCon);
         ir.putHeader("X-CSRFToken", csrftoken);
         String sessionFound = null;
-        HttpURLConnection connection = ir.sendPostRequest("https://www.instagram.com/accounts/login/ajax/", new FormUrlEncoded(new String[][]{{"username", this.username}, {"password", this.password}}));
+        HttpURLConnection connection = ir.sendPostRequest(LOGIN_URL, new FormUrlEncoded(new String[][]{{"username", this.username}, {"password", this.password}}));
         if (connection.getResponseCode() == 400) {
             JsonObject obj = (JsonObject) new JsonParser().parse(Request.readResponse(connection, true));
             String url = String.format("https://www.instagram.com%s", obj.getAsJsonPrimitive("checkpoint_url").getAsString());
@@ -133,7 +133,7 @@ public class InstagramAccount {
     }
 
     private boolean checkSessionId() throws IOException {
-        return this.request.sendGetRequest("https://www.instagram.com/graphql/query/?query_hash=d6f4427fbe92d846298cf93df0b937d3").getResponseCode() == 200;
+        return this.request.sendGetRequest(SESSION_TEST_URL).getResponseCode() == 200;
     }
 
     public InstagramUser loadUser(String id, String username, JsonObject obj, LocalDateTime now, boolean metadata) throws IOException {
