@@ -6,23 +6,24 @@ plugins {
 }
 
 group 'fe.igscraper'
-version = versioning.info.full + "-" + (versioning.info.tag == null ? "dev" : versioning.info.tag)
+version = versioning.info.full + "-" + (versioning.info.tag == null ? "dev_build" : versioning.info.tag)
 
 
 def mainClassName = "fe.igscraper.Main"
+def gitlabProjectId = "14044471"
 
 sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
     maven { url "https://jitpack.io" }
-    maven { url "https://repo.maven.apache.org/maven2" }
 }
 
 dependencies {
     compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.28.0'
-    compile group: 'com.gitlab.grrfe', name: 'Logger', version: '1.0'
-    compile group: 'com.gitlab.grrfe', name: 'Request', version: '1.0'
+    compile group: 'com.gitlab.grrfe', name: 'Logger', version: '1.0.0'
+    compile group: 'com.gitlab.grrfe', name: 'Request', version: '1.0.0'
+    compile group: 'com.gitlab.grrfe', name: 'BinaryVersion', version: '1.0.0'
     compile group: 'net.sourceforge.argparse4j', name: 'argparse4j', version: '0.8.1'
     compile group: 'com.github.zafarkhaja', name: 'java-semver', version: '0.9.0'
     compile group: 'com.google.code.gson', name: 'gson', version: '2.8.5'
@@ -42,7 +43,8 @@ jar {
         attributes("Main-Class": mainClassName,
                    "Built-At": LocalDateTime.now(),
                    "Commit": versioning.info.full,
-                   "Version": versioning.info.tag == null ? "dev" : versioning.info.tag,
+                   "Version": versioning.info.tag == null ? "dev_build" : versioning.info.tag,
+                   "Gitlab-Project-Id": gitlabProjectId
         )
     }
 }

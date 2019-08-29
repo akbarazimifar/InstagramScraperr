@@ -2,12 +2,20 @@ package fe.igscraper;
 
 import com.github.zafarkhaja.semver.*;
 import com.sun.javafx.application.*;
+import fe.binaryversion.BinaryVersion;
 import fe.igscraper.instagram.util.*;
 import com.google.gson.*;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.*;
 import java.time.temporal.*;
 import java.io.*;
+import java.util.Enumeration;
+import java.util.Map;
+import java.util.jar.Attributes;
+import java.util.jar.JarInputStream;
+import java.util.jar.Manifest;
 
 import fe.igscraper.mediaplayer.*;
 import fe.logger.Logger;
@@ -18,15 +26,23 @@ import javafx.beans.value.*;
 
 public class Main {
     private Logger logger;
-    public static final Version APP_VERSION = Version.valueOf("1.2.0");
+    private BinaryVersion binaryVersion = new BinaryVersion(true);
     public static final String APP_NAME = "InstagramScraper";
 
-    public Main(final String configPath, final boolean enableDownloadCompleteSound, final boolean metadata) {
-        this.logger = new Logger(String.format("%s-%s", "InstagramScraper", Main.APP_VERSION.toString()), true);
+    public Main(final String configPath, boolean enableDownloadCompleteSound, boolean metadata) {
+        try {
+            this.binaryVersion.loadVersion();
+            this.binaryVersion.checkUpdate();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        this.logger = new Logger(String.format("%s-%s", APP_NAME, this.binaryVersion.toString()), true);
         this.logger.print(Logger.Type.INFO, "Sound: %b, Metadata: %b", enableDownloadCompleteSound, metadata);
         this.logger.print(Logger.Type.INFO, "Loading config from %s", configPath);
         if (enableDownloadCompleteSound) {
-            PlatformImpl.startup(() -> { });
+            PlatformImpl.startup(() -> {
+            });
         }
 
         try {
@@ -66,7 +82,7 @@ public class Main {
             new Main(ns.getString("config"), ns.getBoolean("enablecompletesound"), ns.getBoolean("metadata"));
         } catch (ArgumentParserException e) {
             parser.handleError(e);
-            System.exit(1);
+            System.exit(0);
         }
     }
 }

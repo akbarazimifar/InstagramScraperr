@@ -28,7 +28,7 @@ Java commandline Instagram scraper to easily download new content
 Open the terminal/CMD in the folder where the binary is located and type
 
 
-`java -jar scraper.jar /path/to/instagram_config.json [--enablecompletesound] [--metadata]`
+`java -jar scraper.jar /path/to/instagram_config.json [--enablecompletesound/-s] [--metadata/-m]`
 
 (you don't need to supply both arguments if you only want to launch one module)
 
