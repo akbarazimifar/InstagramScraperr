@@ -16,11 +16,17 @@ Java commandline Instagram scraper to easily download new content
 * Dynamic foldermanagement to easily sort the downloaded content
 * Sessionstorage 
 
-# Downloads
+***Requirements***
+
+* Java 8
+* (on linux: OpenJFX 8)
+
+
+***Downloads***
 
 * [Releases](https://gitlab.com/grrfe/InstagramScraper/-/releases)
 
-# Building
+***Building***
 
 Prerequisites: `Git`, `Gradle`, `JDK 8`, `(linux: OpenJFX 8)`
 
@@ -30,9 +36,9 @@ Prerequisites: `Git`, `Gradle`, `JDK 8`, `(linux: OpenJFX 8)`
 
 Binary will be located in `build/libs`
 
-# [How to setup a config ](config_example/instagram_config_tutorial.md)
+***[How to setup a config ](config_example/instagram_config_tutorial.md)***
 
-# How to use
+***How to use***
 
 Open the terminal/CMD in the folder where the binary is located and type
 
