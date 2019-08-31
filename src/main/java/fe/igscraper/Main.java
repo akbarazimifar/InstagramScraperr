@@ -23,7 +23,8 @@ public class Main {
         try {
             BinaryVersion binaryVersion = new BinaryVersion(Main.class, true).loadVersion().checkUpdate();
 
-            Logger logger = new Logger(String.format("%s-%s", APP_NAME, binaryVersion.toString()), true);
+            Logger logger = new Logger(String.format("%s-%s", APP_NAME, binaryVersion.getVersion().toString()), true);
+            logger.print(Logger.Type.INFO, "Full version: %s", binaryVersion.toString());
             logger.print(Logger.Type.INFO, "Sound: %b, Metadata: %b", enableDownloadCompleteSound, metadata);
             logger.print(Logger.Type.INFO, "Loading config from %s", configPath);
             if (enableDownloadCompleteSound) {
