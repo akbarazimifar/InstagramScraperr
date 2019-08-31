@@ -6,13 +6,15 @@ plugins {
     id 'net.nemerosa.versioning' version '2.6.1'
 }
 
-group 'fe.igscraper'
-tag = versioning.info.tag == null ? "dev_build" : versioning.info.tag
-version = versioning.info.full + "-" + tag
-
-
+def tag = (versioning.info.tag == null ? "dev_build" : versioning.info.tag)
 def mainClassName = "fe.igscraper.Main"
 def gitlabProjectId = "14044471"
+
+group "fe.igscraper"
+version "$versioning.info.full-$tag"
+
+
+
 
 sourceCompatibility = 1.8
 
