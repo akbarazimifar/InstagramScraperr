@@ -38,16 +38,21 @@ Binary will be located in `build/libs`
 
 ***[How to setup a config ](config_example/instagram_config_tutorial.md)***
 
-***How to use***
+***Usage***
+```
+grrfe@feowo:~$ java -jar InstagramScraper-LATEST.jar
+usage: InstagramScraper [-h] [-s] [-m] config
 
-Open the terminal/CMD in the folder where the binary is located and type
+Scrape a list of given Instagram accounts incrementally
 
+positional arguments:
+  config                 Path to the config used by the scraper
 
-`java -jar scraper.jar /path/to/instagram_config.json [--enablecompletesound/-s] [--metadata/-m]`
-
-(you don't need to supply both arguments if you only want to launch one module)
-
-* `--enablecompletesound` plays a sound when all downloads are finished
-* `--metadata` scrapes metadata
+named arguments:
+  -h, --help             show this help message and exit
+  -s, --enablecompletesound
+                         Play a sound when scraping is done (default: false)
+  -m, --metadata         Scrape metadata of content and store it (default: false)
+```
 
 (Optional: Put the binary and a config file in the same folder)
