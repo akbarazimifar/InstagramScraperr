@@ -19,7 +19,7 @@ import java.time.temporal.ChronoUnit;
 public class Main {
     private static final String APP_NAME = "InstagramScraper";
 
-    public Main(String configPath, boolean enableDownloadCompleteSound, boolean metadata) {
+    private Main(String configPath, boolean enableDownloadCompleteSound, boolean metadata) {
         try {
             BinaryVersion binaryVersion = new BinaryVersion(Main.class, true).loadVersion().checkUpdate();
 
@@ -42,6 +42,7 @@ public class Main {
             ContentManager contentManager = new ContentManager(configLoader.getDatabase(), configLoader.getUsers());
             contentManager.findContent();
             contentManager.downloadContent();
+
             Util.writeJson(config, configLoader.getJsonConfig());
 
             long time = System.currentTimeMillis() - start;

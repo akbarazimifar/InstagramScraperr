@@ -19,7 +19,7 @@ public class StoryContentFinder extends ContentFinder {
 
     @Override
     public List<InstagramContent> findContent(InstagramUser iu, List<String> ignore) throws IOException {
-        List<InstagramContent> stories = new ArrayList<InstagramContent>();
+        List<InstagramContent> stories = new ArrayList<>();
         JsonObject metadataObj = new JsonObject();
         JsonElement element = iu.readGetRequestJson(String.format(STORY_URL, iu.getId()));
         JsonArray reelsMedia = element.getAsJsonObject().getAsJsonObject("data").getAsJsonArray("reels_media");

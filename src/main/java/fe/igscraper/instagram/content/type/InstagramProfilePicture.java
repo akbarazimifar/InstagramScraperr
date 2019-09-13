@@ -9,6 +9,7 @@ public class InstagramProfilePicture extends InstagramContent {
 
     public InstagramProfilePicture(String fileNameScheme, String url, String filename, InstagramUser owner, boolean metadata) {
         super(InstagramUser.ContentType.PROFILE_PICTURE, fileNameScheme, owner, metadata);
+
         this.filename = filename;
         this.addUrl(url, Util.fileNameScheme(this.fileNameScheme, this.contentType, owner, filename));
     }

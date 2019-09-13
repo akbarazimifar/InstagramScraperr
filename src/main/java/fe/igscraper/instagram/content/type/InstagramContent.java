@@ -36,7 +36,8 @@ public abstract class InstagramContent {
     }
 
     public int storeDatabase(SQLiteDatabase database) throws SQLException {
-        PreparedStatement stmnt = database.prepareStatement("INSERT INTO %s (url, datetime) VALUES (?, ?)", this.contentType.getTable(this.instagramUser));
+        PreparedStatement stmnt = database.prepareStatement(STORE_SQL, this.contentType.getTable(this.instagramUser));
+
         stmnt.setString(1, this.toDatabaseString());
         stmnt.setString(2, LocalDateTime.now().toString());
         return stmnt.executeUpdate();
