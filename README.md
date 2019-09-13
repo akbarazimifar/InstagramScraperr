@@ -4,7 +4,7 @@ Java commandline Instagram scraper to easily download new content
 
 ***Supported content***
 
-`Posts, Stories, Profile pictures (fullsize), Collections`
+`Posts`, `Stories`, `Profile pictures (fullsize)`, `Collections`
 
 ***Features***
 
