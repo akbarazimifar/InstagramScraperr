@@ -1,10 +1,9 @@
 package fe.igscraper;
 
-import com.sun.javafx.application.PlatformImpl;
 import fe.binaryversion.BinaryVersion;
 import fe.igscraper.instagram.util.Util;
-import fe.igscraper.mediaplayer.Player;
 import fe.logger.Logger;
+import fe.mediaplayer.Player;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
