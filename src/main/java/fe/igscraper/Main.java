@@ -27,10 +27,6 @@ public class Main {
             logger.print(Logger.Type.INFO, "Full version: %s", binaryVersion.toString());
             logger.print(Logger.Type.INFO, "Sound: %b, Metadata: %b", enableDownloadCompleteSound, metadata);
             logger.print(Logger.Type.INFO, "Loading config from %s", configPath);
-            if (enableDownloadCompleteSound) {
-                PlatformImpl.startup(() -> {
-                });
-            }
 
             long start = System.currentTimeMillis();
             File config = new File(configPath);
@@ -52,9 +48,7 @@ public class Main {
         }
 
         if (enableDownloadCompleteSound) {
-            Player player = new Player();
-            player.play(Main.class.getResource("/download-complete.wav").toString());
-            player.finishedProperty().addListener((v, o, n) -> System.exit(0));
+            new Player(Main.class.getResource("/download-complete.wav").toString()).addFinishedListener((v, o, n) -> System.exit(0)).play();
         } else {
             System.exit(0);
         }
