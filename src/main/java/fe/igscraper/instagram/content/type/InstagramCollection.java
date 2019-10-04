@@ -10,6 +10,7 @@ public class InstagramCollection extends InstagramContent {
 
     public InstagramCollection(String fileNameScheme, String collectionName, String url, String filename, InstagramUser owner, boolean metadata) {
         super(InstagramUser.ContentType.COLLECTION, fileNameScheme, owner, metadata);
+
         this.collectionName = collectionName;
         this.filename = filename;
         this.addUrl(url, Util.fileNameScheme(this.fileNameScheme, this.contentType, owner, filename).replace("%collection_name%", this.collectionName));

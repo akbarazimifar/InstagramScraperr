@@ -70,7 +70,10 @@ public class InstagramPost extends InstagramContent {
     }
 
     private void addUrl(String url, int counter) {
-        this.addUrl(url, Util.fileUrlNameScheme(this.fileNameScheme, this.contentType, this.instagramUser, url).replace("%shortcode%", this.shortCode).replace("%media_counter%", String.valueOf(counter)));
+        this.addUrl(url, Util.fileUrlNameScheme(
+                this.fileNameScheme, this.contentType, this.instagramUser, url)
+                .replace("%shortcode%", this.shortCode)
+                .replace("%media_counter%", String.valueOf(counter)));
     }
 
     private String getImageVideo(JsonObject parent, String typename) {

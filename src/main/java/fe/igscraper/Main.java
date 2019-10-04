@@ -1,10 +1,9 @@
 package fe.igscraper;
 
-import com.sun.javafx.application.PlatformImpl;
 import fe.binaryversion.BinaryVersion;
 import fe.igscraper.instagram.util.Util;
-import fe.igscraper.mediaplayer.Player;
 import fe.logger.Logger;
+import fe.mediaplayer.Player;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
@@ -19,7 +18,7 @@ import java.time.temporal.ChronoUnit;
 public class Main {
     private static final String APP_NAME = "InstagramScraper";
 
-    public Main(String configPath, boolean enableDownloadCompleteSound, boolean metadata) {
+    private Main(String configPath, boolean enableDownloadCompleteSound, boolean metadata) {
         try {
             BinaryVersion binaryVersion = new BinaryVersion(Main.class, true).loadVersion().checkUpdate();
 
@@ -27,10 +26,6 @@ public class Main {
             logger.print(Logger.Type.INFO, "Full version: %s", binaryVersion.toString());
             logger.print(Logger.Type.INFO, "Sound: %b, Metadata: %b", enableDownloadCompleteSound, metadata);
             logger.print(Logger.Type.INFO, "Loading config from %s", configPath);
-            if (enableDownloadCompleteSound) {
-                PlatformImpl.startup(() -> {
-                });
-            }
 
             long start = System.currentTimeMillis();
             File config = new File(configPath);
@@ -52,9 +47,7 @@ public class Main {
         }
 
         if (enableDownloadCompleteSound) {
-            Player player = new Player();
-            player.play(Main.class.getResource("/download-complete.wav").toString());
-            player.finishedProperty().addListener((v, o, n) -> System.exit(0));
+            new Player(Main.class.getResource("/download-complete.wav").toString()).addFinishedListener((v, o, n) -> System.exit(0)).play();
         } else {
             System.exit(0);
         }

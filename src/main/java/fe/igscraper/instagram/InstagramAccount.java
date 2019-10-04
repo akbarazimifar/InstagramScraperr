@@ -32,7 +32,7 @@ public class InstagramAccount {
     public static final String MID_URL = "https://www.instagram.com/web/__mid/";
     public static final String LOGIN_URL = "https://www.instagram.com/accounts/login/ajax/";
     public static final String SESSION_TEST_URL = "https://www.instagram.com/graphql/query/?query_hash=d6f4427fbe92d846298cf93df0b937d3";
-    public static final Pattern  DATE_TIME_PATTERN = Pattern.compile(".*(\\%current_datetime\\{(.+)\\}\\%)");
+    public static final Pattern DATE_TIME_PATTERN = Pattern.compile(".*(\\%current_datetime\\{(.+)\\}\\%)");
 
     public InstagramAccount(String username, String password, String sessionId, AuthenticationProxy proxy) {
         this.username = username;
@@ -72,12 +72,10 @@ public class InstagramAccount {
     public JsonElement readGetRequestJson(String url) throws IOException {
         HttpURLConnection con;
         while ((con = this.request.sendGetRequest(url)) == null) {
-            this.logger.print(Logger.Type.WARNING, "Account ratelimited, going to sleep for 120seconds..");
+            this.logger.print(Logger.Type.WARNING, "Account ratelimited, going to sleep for %dseconds..", RATE_LIMIT_DELAY / 10000);
             try {
-                Thread.sleep(1200000L);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+                Thread.sleep(RATE_LIMIT_DELAY);
+            } catch (InterruptedException ignored) {}
             this.logger.print(Logger.Type.INFO, "Retrying..");
         }
         return this.readJson(con);
@@ -109,6 +107,7 @@ public class InstagramAccount {
         this.request.putCookie("sessionid", null);
         InstagramRequest ir = new InstagramRequest(this.proxy, true);
         ir.putCookies(new String[][]{{"ig_pr", "1"}, {"ig_vw", "1920"}, {"ig_cb", "1"}});
+
         HttpURLConnection midCon = ir.sendGetRequest(MID_URL);
         String csrftoken = Request.findCookie("csrftoken", midCon);
         String mid = Request.findCookie("mid", midCon);
@@ -121,9 +120,11 @@ public class InstagramAccount {
             ir.putHeader("Referer", url);
             ir.putCookies(new String[][]{{"mid", mid}, {"csrftoken", csrftoken}});
             ir.sendPostRequest(url, new FormUrlEncoded(new String[][]{{"choice", "1"}}));
-            this.logger.print(Logger.Type.WARNING, "A code has been sent to your email address, input it here:");
+            this.logger.print(Logger.Type.WARNING, "A code has been sent to your email address, input it here: ");
+
             Scanner scanner = new Scanner(System.in);
             String code = scanner.nextLine().trim();
+
             HttpURLConnection securityConnection = ir.sendPostRequest(url, new FormUrlEncoded(new String[][]{{"security_code", code}}));
             String securityResponse = Request.readResponse(securityConnection, false);
             JsonObject securityResponseObj = (JsonObject) new JsonParser().parse(securityResponse);
@@ -169,7 +170,9 @@ public class InstagramAccount {
             } else {
                 JsonObject saveObj = (JsonObject) saveJe;
                 ct = InstagramUser.ContentType.findByType(saveObj.getAsJsonPrimitive("type").getAsString());
-                ct.setNameScheme(saveObj.getAsJsonPrimitive("fileNameScheme").getAsString());
+                if(ct != null){
+                    ct.setNameScheme(saveObj.getAsJsonPrimitive("fileNameScheme").getAsString());
+                }
             }
             instagramUser.enableType(ct);
             if (metadata) {

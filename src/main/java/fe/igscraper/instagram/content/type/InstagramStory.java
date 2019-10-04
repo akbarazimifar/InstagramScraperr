@@ -10,6 +10,7 @@ public class InstagramStory extends InstagramContent {
 
     public InstagramStory(String fileNameScheme, String storyId, String url, String filename, InstagramUser owner, boolean metadata, JsonObject metadataObj) {
         super(InstagramUser.ContentType.STORY, fileNameScheme, owner, metadata);
+
         this.storyId = storyId;
         this.filename = filename;
         this.addUrl(url, Util.fileNameScheme(this.fileNameScheme, this.contentType, owner, filename).replace("%story_id%", this.storyId));
