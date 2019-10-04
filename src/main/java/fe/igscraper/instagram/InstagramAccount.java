@@ -32,7 +32,7 @@ public class InstagramAccount {
     public static final String MID_URL = "https://www.instagram.com/web/__mid/";
     public static final String LOGIN_URL = "https://www.instagram.com/accounts/login/ajax/";
     public static final String SESSION_TEST_URL = "https://www.instagram.com/graphql/query/?query_hash=d6f4427fbe92d846298cf93df0b937d3";
-    public static final Pattern DATE_TIME_PATTERN;
+    public static final Pattern  DATE_TIME_PATTERN = Pattern.compile(".*(\\%current_datetime\\{(.+)\\}\\%)");
 
     public InstagramAccount(String username, String password, String sessionId, AuthenticationProxy proxy) {
         this.username = username;
@@ -50,9 +50,23 @@ public class InstagramAccount {
         return this.request.sendGetRequest(url);
     }
 
+    public HttpURLConnection sendGetRequest(String url, String useragent) throws IOException {
+        this.request.putHeader("User-Agent", useragent);
+        HttpURLConnection con = this.sendGetRequest(url);
+        this.request.putHeader("User-Agent", InstagramRequest.USER_AGENT);
+        return con;
+    }
+
     private JsonElement readJson(HttpURLConnection con) throws JsonSyntaxException, IOException {
         List<String> encoding = Request.findHeader("content-encoding", con);
         return new JsonParser().parse(new BufferedReader(new InputStreamReader((encoding != null && encoding.get(0).equalsIgnoreCase("gzip")) ? new GZIPInputStream(con.getInputStream()) : con.getInputStream())).readLine());
+    }
+
+    public JsonElement readGetRequestJson(String url, String useragent) throws IOException {
+        this.request.putHeader("User-Agent", useragent);
+        JsonElement el = this.readGetRequestJson(url);
+        this.request.putHeader("User-Agent", InstagramRequest.USER_AGENT);
+        return el;
     }
 
     public JsonElement readGetRequestJson(String url) throws IOException {
@@ -170,7 +184,4 @@ public class InstagramAccount {
         return this.username;
     }
 
-    static {
-        DATE_TIME_PATTERN = Pattern.compile(".*(\\%current_datetime\\{(.+)\\}\\%)");
-    }
 }

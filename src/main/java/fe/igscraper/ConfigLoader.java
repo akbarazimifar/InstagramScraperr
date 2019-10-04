@@ -18,20 +18,23 @@ import fe.request.*;
 
 public class ConfigLoader {
     private SQLiteDatabase database;
-    private boolean metadata;
     private JsonObject jsonConfig;
-    private Logger logger;
-    private List<InstagramAccount> accounts;
-    private List<InstagramUser> users;
-    private final static String CHECK_ACCOUNT_URL = "https://i.instagram.com/api/v1/users/%s/info/";
+    private boolean metadata;
+
+
+    private Logger logger = new Logger("ConfigLoader", true);
+
+    private List<InstagramAccount> accounts = new ArrayList<>();
+    private List<InstagramUser> users = new ArrayList<>();
+
+    private static final String CHECK_ACCOUNT_URL = "https://i.instagram.com/api/v1/users/%s/info/";
+    //taken from https://github.com/ping/instagram_private_api/blob/master/instagram_private_api/constants.py
+    private static final String CHECK_ACCOUNT_USERAGENT = "Instagram 76.0.0.15.395 Android (24/7.0; 640dpi; 1440x2560; samsung; SM-G930F; herolte; samsungexynos8890; en_US; 138226743)";
 
     private int accountRotate;
     private final static String ID_FINDER_URL = "https://www.instagram.com/web/search/topsearch/?query=%s";
 
     public ConfigLoader(File config, boolean metadata) throws IOException {
-        this.logger = new Logger("ConfigLoader", true);
-        this.accounts = new ArrayList<InstagramAccount>();
-        this.users = new ArrayList<InstagramUser>();
         this.jsonConfig = (JsonObject) new JsonParser().parse(new BufferedReader(new FileReader(config)));
         this.database = new SQLiteDatabase(this.jsonConfig.getAsJsonPrimitive("database_path").getAsString());
         this.metadata = metadata;
@@ -130,7 +133,7 @@ public class ConfigLoader {
     }
 
     private boolean checkExistsAccount(InstagramAccount account, String id) throws IOException {
-        return account.sendGetRequest(String.format(CHECK_ACCOUNT_URL, id)).getResponseCode() == 200;
+        return account.sendGetRequest(String.format(CHECK_ACCOUNT_URL, id), CHECK_ACCOUNT_USERAGENT).getResponseCode() == 200;
     }
 
     private InstagramAccount getInstagramAccount(String username, String instagramLogin) {

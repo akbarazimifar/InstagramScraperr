@@ -42,6 +42,7 @@ public class Main {
             ContentManager contentManager = new ContentManager(configLoader.getDatabase(), configLoader.getUsers());
             contentManager.findContent();
             contentManager.downloadContent();
+
             Util.writeJson(config, configLoader.getJsonConfig());
 
             long time = System.currentTimeMillis() - start;

@@ -21,7 +21,7 @@ public class InstagramUser {
     private InstagramAccount account;
     private List<ContentType> contentTypes;
     private List<InstagramContent> newContent;
-    private static String CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS %s (id integer PRIMARY KEY AUTOINCREMENT, url text NOT NULL, datetime text)";
+    private static final String CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS %s (id integer PRIMARY KEY AUTOINCREMENT, url text NOT NULL, datetime text)";
 
     public InstagramUser(String id, String username, File saveFolder, boolean overwriteFiles, InstagramAccount account) {
         this.contentTypes = new ArrayList<ContentType>();
@@ -67,6 +67,9 @@ public class InstagramUser {
         return this.account.readGetRequestJson(url);
     }
 
+    public JsonElement readGetRequestJson(String url, String useragent) throws IOException {
+        return this.account.readGetRequestJson(url, useragent);
+    }
     public File getSaveFolder() {
         return this.saveFolder;
     }
