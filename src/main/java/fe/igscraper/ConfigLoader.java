@@ -29,7 +29,7 @@ public class ConfigLoader {
 
     private static final String CHECK_ACCOUNT_URL = "https://i.instagram.com/api/v1/users/%s/info/";
     //taken from https://github.com/ping/instagram_private_api/blob/master/instagram_private_api/constants.py
-    private static final String CHECK_ACCOUNT_USERAGENT = "Instagram 76.0.0.15.395 Android (24/7.0; 640dpi; 1440x2560; samsung; SM-G930F; herolte; samsungexynos8890; en_US; 138226743)";
+    public static final String CHECK_ACCOUNT_USERAGENT = "Instagram 76.0.0.15.395 Android (24/7.0; 640dpi; 1440x2560; samsung; SM-G930F; herolte; samsungexynos8890; en_US; 138226743)";
 
     private int accountRotate;
     private final static String ID_FINDER_URL = "https://www.instagram.com/web/search/topsearch/?query=%s";

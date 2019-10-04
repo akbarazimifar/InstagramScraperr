@@ -51,10 +51,7 @@ public class InstagramAccount {
     }
 
     public HttpURLConnection sendGetRequest(String url, String useragent) throws IOException {
-        this.request.putHeader("User-Agent", useragent);
-        HttpURLConnection con = this.sendGetRequest(url);
-        this.request.putHeader("User-Agent", InstagramRequest.USER_AGENT);
-        return con;
+        return this.request.sendGetRequest(url, new String[][]{{"User-Agent", useragent}});
     }
 
     private JsonElement readJson(HttpURLConnection con) throws JsonSyntaxException, IOException {
@@ -63,21 +60,24 @@ public class InstagramAccount {
     }
 
     public JsonElement readGetRequestJson(String url, String useragent) throws IOException {
-        this.request.putHeader("User-Agent", useragent);
-        JsonElement el = this.readGetRequestJson(url);
-        this.request.putHeader("User-Agent", InstagramRequest.USER_AGENT);
-        return el;
+        return this.readGetRequestJson(url, new String[][]{{"User-Agent", useragent}});
     }
 
     public JsonElement readGetRequestJson(String url) throws IOException {
+        return this.readGetRequestJson(url, new String[][]{});
+    }
+
+    private JsonElement readGetRequestJson(String url, String[][] headerOverride) throws IOException {
         HttpURLConnection con;
-        while ((con = this.request.sendGetRequest(url)) == null) {
+        while ((con = this.request.sendGetRequest(url, headerOverride)) == null) {
             this.logger.print(Logger.Type.WARNING, "Account ratelimited, going to sleep for %dseconds..", RATE_LIMIT_DELAY / 10000);
             try {
                 Thread.sleep(RATE_LIMIT_DELAY);
-            } catch (InterruptedException ignored) {}
+            } catch (InterruptedException ignored) {
+            }
             this.logger.print(Logger.Type.INFO, "Retrying..");
         }
+
         return this.readJson(con);
     }
 
@@ -170,7 +170,7 @@ public class InstagramAccount {
             } else {
                 JsonObject saveObj = (JsonObject) saveJe;
                 ct = InstagramUser.ContentType.findByType(saveObj.getAsJsonPrimitive("type").getAsString());
-                if(ct != null){
+                if (ct != null) {
                     ct.setNameScheme(saveObj.getAsJsonPrimitive("fileNameScheme").getAsString());
                 }
             }
