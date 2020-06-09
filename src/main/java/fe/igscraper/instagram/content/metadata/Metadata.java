@@ -7,7 +7,7 @@ import java.io.*;
 
 public class Metadata
 {
-    private JsonObject root;
+    private final JsonObject root;
     
     public Metadata(InstagramContent instagramContent) {
         this.root = new JsonObject();

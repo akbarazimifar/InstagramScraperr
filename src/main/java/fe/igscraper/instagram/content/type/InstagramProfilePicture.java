@@ -5,7 +5,7 @@ import fe.igscraper.instagram.util.*;
 import com.google.gson.*;
 
 public class InstagramProfilePicture extends InstagramContent {
-    private String filename;
+    private final String filename;
 
     public InstagramProfilePicture(String fileNameScheme, String url, String filename, InstagramUser owner, boolean metadata) {
         super(InstagramUser.ContentType.PROFILE_PICTURE, fileNameScheme, owner, metadata);

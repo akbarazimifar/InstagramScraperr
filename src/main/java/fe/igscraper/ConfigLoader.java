@@ -15,6 +15,7 @@ import java.sql.*;
 
 import com.google.gson.*;
 import fe.request.*;
+import fe.request.proxy.AuthenticationProxy;
 
 public class ConfigLoader {
     private SQLiteDatabase database;
@@ -156,7 +157,7 @@ public class ConfigLoader {
 
 
     private String findUserIdFromUsername(InstagramAccount account, String username) throws IOException {
-        JsonObject obj = (JsonObject) new JsonParser().parse(Request.readResponse(account.sendGetRequest(String.format(ID_FINDER_URL, username)), false));
+        JsonObject obj = (JsonObject) new JsonParser().parse(RequestUtil.readResponse(account.sendGetRequest(String.format(ID_FINDER_URL, username))));
         try {
             return obj.getAsJsonArray("users").get(0).getAsJsonObject().getAsJsonObject("user").getAsJsonPrimitive("pk").getAsString();
         } catch (Exception e) {

@@ -18,13 +18,13 @@ public abstract class InstagramContent {
     protected InstagramUser instagramUser;
     protected String fileNameScheme;
     protected InstagramUser.ContentType contentType;
-    private Logger logger;
+    private final Logger logger;
     private Metadata metadata;
     protected boolean metadataEnabled;
     private static final String STORE_SQL = "INSERT INTO %s (url, datetime) VALUES (?, ?)";
 
     public InstagramContent(InstagramUser.ContentType contentType, String fileNameScheme, InstagramUser instagramUser, boolean metadataEnabled) {
-        this.urls = new HashMap<String, String>();
+        this.urls = new HashMap<>();
         this.contentType = contentType;
         this.fileNameScheme = fileNameScheme;
         this.instagramUser = instagramUser;

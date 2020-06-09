@@ -14,20 +14,21 @@ import java.sql.*;
 import fe.igscraper.instagram.content.finder.*;
 
 public class InstagramUser {
-    private String id, username;
-    private File saveFolder;
-    private boolean overwriteFiles;
+    private final String id;
+    private final String username;
+    private final File saveFolder;
+    private final boolean overwriteFiles;
 
-    private InstagramAccount account;
+    private final InstagramAccount account;
 
-    private List<ContentType> contentTypes;
-    private List<InstagramContent> newContent;
+    private final List<ContentType> contentTypes;
+    private final List<InstagramContent> newContent;
 
     private static final String CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS %s (id integer PRIMARY KEY AUTOINCREMENT, url text NOT NULL, datetime text)";
 
     public InstagramUser(String id, String username, File saveFolder, boolean overwriteFiles, InstagramAccount account) {
-        this.contentTypes = new ArrayList<ContentType>();
-        this.newContent = new ArrayList<InstagramContent>();
+        this.contentTypes = new ArrayList<>();
+        this.newContent = new ArrayList<>();
         this.id = id;
         this.username = username;
         this.saveFolder = saveFolder;
@@ -72,6 +73,7 @@ public class InstagramUser {
     public JsonElement readGetRequestJson(String url, String useragent) throws IOException {
         return this.account.readGetRequestJson(url, useragent);
     }
+
     public File getSaveFolder() {
         return this.saveFolder;
     }
@@ -105,18 +107,19 @@ public class InstagramUser {
     }
 
     public enum ContentType {
-        POST("posts", (ContentFinder) new PostContentFinder()),
-        STORY("stories", (ContentFinder) new StoryContentFinder()),
-        COLLECTION("collections", (ContentFinder) new CollectionContentFinder()),
-        PROFILE_PICTURE("profilepictures", (ContentFinder) new ProfilePictureContentFinder());
+        POST("posts", new PostContentFinder()),
+        STORY("stories", new StoryContentFinder()),
+        COLLECTION("collections", new CollectionContentFinder()),
+        PROFILE_PICTURE("profilepictures", new ProfilePictureContentFinder());
 
-        private String type, fileNameScheme;
-        private ContentFinder cf;
+        private final String type;
+        private String fileNameScheme;
+        private final ContentFinder cf;
 
         private static final String TABLE_PREFIX = "igu_%s_";
         private static final String QUERY_DB_CONTENT_SQL = "SELECT url FROM %s";
 
-        private ContentType(String type, ContentFinder cf) {
+        ContentType(String type, ContentFinder cf) {
             this.type = type;
             this.cf = cf;
         }
@@ -147,7 +150,7 @@ public class InstagramUser {
         }
 
         public List<String> queryDatabase(SQLiteDatabase database, InstagramUser instagramUser) throws SQLException {
-            List<String> existingContent = new ArrayList<String>();
+            List<String> existingContent = new ArrayList<>();
             ResultSet rs = database.prepareStatement(QUERY_DB_CONTENT_SQL, this.getTable(instagramUser)).executeQuery();
             while (rs.next()) {
                 existingContent.add(rs.getString("url"));

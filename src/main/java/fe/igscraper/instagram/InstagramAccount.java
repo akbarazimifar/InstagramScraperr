@@ -1,37 +1,37 @@
 package fe.igscraper.instagram;
 
-import fe.logger.*;
-import fe.igscraper.instagram.request.*;
-
-import java.net.*;
-
-import fe.request.*;
-
-import java.util.zip.*;
-
-import fe.igscraper.instagram.exception.*;
-import fe.request.postcontent.*;
-
-import java.time.*;
-import java.time.format.*;
-import java.io.*;
-
 import com.google.gson.*;
+import fe.igscraper.instagram.exception.InstagramLoginFailedException;
+import fe.igscraper.instagram.request.InstagramRequest;
+import fe.logger.Logger;
+import fe.request.RequestOverride;
+import fe.request.RequestUtil;
+import fe.request.data.Cookie;
+import fe.request.data.Header;
+import fe.request.postcontent.FormUrlEncoded;
+import fe.request.proxy.AuthenticationProxy;
 
-import java.util.regex.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class InstagramAccount {
-    private String username;
-    private String password;
-    private AuthenticationProxy proxy;
-    private Logger logger;
+    private final String username;
+    private final String password;
+    private final AuthenticationProxy proxy;
+    private final Logger logger;
     private String sessionId;
-    private InstagramRequest request;
+    private final InstagramRequest request;
     public static final long RATE_LIMIT_DELAY = 1200000L;
     public static final String MID_URL = "https://www.instagram.com/web/__mid/";
     public static final String LOGIN_URL = "https://www.instagram.com/accounts/login/ajax/";
     public static final String SESSION_TEST_URL = "https://www.instagram.com/graphql/query/?query_hash=d6f4427fbe92d846298cf93df0b937d3";
+
     public static final Pattern DATE_TIME_PATTERN = Pattern.compile(".*(\\%current_datetime\\{(.+)\\}\\%)");
 
     public InstagramAccount(String username, String password, String sessionId, AuthenticationProxy proxy) {
@@ -42,7 +42,7 @@ public class InstagramAccount {
         this.logger = new Logger(String.format("InstagramSession: %s", username), true);
         this.request = new InstagramRequest(this.proxy, true);
         if (this.sessionId != null) {
-            this.request.putCookie("sessionid", this.sessionId);
+            this.request.putCookie(new Cookie("sessionid", this.sessionId));
         }
     }
 
@@ -51,25 +51,24 @@ public class InstagramAccount {
     }
 
     public HttpURLConnection sendGetRequest(String url, String useragent) throws IOException {
-        return this.request.sendGetRequest(url, new String[][]{{"User-Agent", useragent}});
+        return this.request.sendGetRequest(url, new RequestOverride().putHeader(new Header("User-Agent", useragent)));
     }
 
     private JsonElement readJson(HttpURLConnection con) throws JsonSyntaxException, IOException {
-        List<String> encoding = Request.findHeader("content-encoding", con);
-        return new JsonParser().parse(new BufferedReader(new InputStreamReader((encoding != null && encoding.get(0).equalsIgnoreCase("gzip")) ? new GZIPInputStream(con.getInputStream()) : con.getInputStream())).readLine());
+        return new JsonParser().parse(RequestUtil.readResponse(con));
     }
 
     public JsonElement readGetRequestJson(String url, String useragent) throws IOException {
-        return this.readGetRequestJson(url, new String[][]{{"User-Agent", useragent}});
+        return this.readGetRequestJson(url, new RequestOverride().putHeader(new Header("User-Agent", useragent)));
     }
 
     public JsonElement readGetRequestJson(String url) throws IOException {
-        return this.readGetRequestJson(url, new String[][]{});
+        return this.readGetRequestJson(url, new RequestOverride());
     }
 
-    private JsonElement readGetRequestJson(String url, String[][] headerOverride) throws IOException {
+    private JsonElement readGetRequestJson(String url, RequestOverride requestOverride) throws IOException {
         HttpURLConnection con;
-        while ((con = this.request.sendGetRequest(url, headerOverride)) == null) {
+        while ((con = this.request.sendGetRequest(url, requestOverride)) == null) {
             this.logger.print(Logger.Type.WARNING, "Account ratelimited, going to sleep for %dseconds..", RATE_LIMIT_DELAY / 10000);
             try {
                 Thread.sleep(RATE_LIMIT_DELAY);
@@ -77,6 +76,8 @@ public class InstagramAccount {
             }
             this.logger.print(Logger.Type.INFO, "Retrying..");
         }
+
+//        System.out.println("response code " + con.getResponseCode() + " for url " + url);
 
         return this.readJson(con);
     }
@@ -95,55 +96,58 @@ public class InstagramAccount {
     }
 
     private void setJsonSession(JsonObject obj) {
-        if (obj.getAsJsonPrimitive("sessionid") == null) {
-            obj.addProperty("sessionid", this.sessionId);
-        } else {
+        if (obj.getAsJsonPrimitive("sessionid") != null) {
             obj.remove("sessionid");
-            obj.addProperty("sessionid", this.sessionId);
         }
+
+        obj.addProperty("sessionid", this.sessionId);
     }
 
     private void generateNewSessionId() throws InstagramLoginFailedException, IOException {
-        this.request.putCookie("sessionid", null);
+        this.request.putCookie(new Cookie("sessionid", "null"));
         InstagramRequest ir = new InstagramRequest(this.proxy, true);
-        ir.putCookies(new String[][]{{"ig_pr", "1"}, {"ig_vw", "1920"}, {"ig_cb", "1"}});
+        ir.putCookies(new Cookie("ig_pr", "1"), new Cookie("ig_vw", "1920"), new Cookie("ig_cb", "1"));
 
         HttpURLConnection midCon = ir.sendGetRequest(MID_URL);
-        String csrftoken = Request.findCookie("csrftoken", midCon);
-        String mid = Request.findCookie("mid", midCon);
-        ir.putHeader("X-CSRFToken", csrftoken);
-        String sessionFound = null;
+        Cookie csrftokenCookie = RequestUtil.findCookie("csrftoken", midCon);
+        Cookie midCookie = RequestUtil.findCookie("mid", midCon);
+        ir.putHeader(new Header("X-CSRFToken", csrftokenCookie.getValue()));
+
+        Cookie sessionCookie = null;
         HttpURLConnection connection = ir.sendPostRequest(LOGIN_URL, new FormUrlEncoded(new String[][]{{"username", this.username}, {"password", this.password}}));
         if (connection.getResponseCode() == 400) {
-            JsonObject obj = (JsonObject) new JsonParser().parse(Request.readResponse(connection, true));
+            JsonObject obj = (JsonObject) new JsonParser().parse(RequestUtil.readResponse(connection, RequestUtil.StreamType.ERRORSTREAM));
             String url = String.format("https://www.instagram.com%s", obj.getAsJsonPrimitive("checkpoint_url").getAsString());
-            ir.putHeader("Referer", url);
-            ir.putCookies(new String[][]{{"mid", mid}, {"csrftoken", csrftoken}});
+            ir.putHeader(new Header("Referer", url));
+            ir.putCookies(new Cookie("mid", midCookie.getValue()), new Cookie("csrftoken", csrftokenCookie.getValue()));
+
             ir.sendPostRequest(url, new FormUrlEncoded(new String[][]{{"choice", "1"}}));
+
             this.logger.print(Logger.Type.WARNING, "A code has been sent to your email address, input it here: ");
 
             Scanner scanner = new Scanner(System.in);
             String code = scanner.nextLine().trim();
 
             HttpURLConnection securityConnection = ir.sendPostRequest(url, new FormUrlEncoded(new String[][]{{"security_code", code}}));
-            String securityResponse = Request.readResponse(securityConnection, false);
+            String securityResponse = RequestUtil.readResponse(securityConnection, RequestUtil.StreamType.ERRORSTREAM);
             JsonObject securityResponseObj = (JsonObject) new JsonParser().parse(securityResponse);
             if (!securityResponseObj.getAsJsonPrimitive("status").getAsString().equalsIgnoreCase("ok")) {
                 throw new UnsupportedOperationException("Replay will be implemented soon");
             }
-            sessionFound = Request.findCookie("sessionid", securityConnection);
+            sessionCookie = RequestUtil.findCookie("sessionid", securityConnection);
         } else {
-            sessionFound = Request.findCookie("sessionid", connection);
+            sessionCookie = RequestUtil.findCookie("sessionid", connection);
         }
-        if (sessionFound != null) {
-            this.sessionId = sessionFound;
-            this.request.putCookie("sessionid", this.sessionId);
+        if (sessionCookie != null) {
+            this.sessionId = sessionCookie.getValue();
+            this.request.putCookie(sessionCookie);
+
             if (!this.checkSessionId()) {
                 this.logger.print(Logger.Type.ERROR, "Something is wrong with the generated sessionId, please log into instagram via the webpage and resolve the error");
             }
             return;
         }
-        this.logger.print(Logger.Type.ERROR, String.format("Login failed (%s)", Request.readResponse(connection, true)));
+        this.logger.print(Logger.Type.ERROR, String.format("Login failed (%s)", RequestUtil.readResponse(connection)));
         throw new InstagramLoginFailedException();
     }
 
@@ -164,9 +168,9 @@ public class InstagramAccount {
         }
         InstagramUser instagramUser = new InstagramUser(id, username, new File(saveFolder), overwriteFiles, this);
         for (JsonElement saveJe : obj.getAsJsonArray("save")) {
-            InstagramUser.ContentType ct = null;
+            InstagramUser.ContentType ct;
             if (saveJe.isJsonPrimitive()) {
-                ct = InstagramUser.ContentType.findByType(((JsonPrimitive) saveJe).getAsString());
+                ct = InstagramUser.ContentType.findByType(saveJe.getAsString());
             } else {
                 JsonObject saveObj = (JsonObject) saveJe;
                 ct = InstagramUser.ContentType.findByType(saveObj.getAsJsonPrimitive("type").getAsString());

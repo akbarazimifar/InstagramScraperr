@@ -5,8 +5,8 @@ import com.google.gson.*;
 import fe.igscraper.instagram.util.*;
 
 public class InstagramStory extends InstagramContent {
-    private String filename;
-    private String storyId;
+    private final String filename;
+    private final String storyId;
 
     public InstagramStory(String fileNameScheme, String storyId, String url, String filename, InstagramUser owner, boolean metadata, JsonObject metadataObj) {
         super(InstagramUser.ContentType.STORY, fileNameScheme, owner, metadata);

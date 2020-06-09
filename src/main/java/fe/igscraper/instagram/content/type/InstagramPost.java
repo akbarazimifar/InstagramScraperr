@@ -11,8 +11,8 @@ import java.util.*;
 import fe.igscraper.instagram.util.*;
 
 public class InstagramPost extends InstagramContent {
-    private String shortCode;
-    public static final String POST_JSON = "https://www.instagram.com/p/%s/?__a=1";
+    private final String shortCode;
+    public static final String POST_JSON = "https://www.instagram.com/p/%s?__a=1";
 
     public InstagramPost(String fileNameScheme, String shortCode, InstagramUser owner, boolean metadataEnabled) {
         super(InstagramUser.ContentType.POST, fileNameScheme, owner, metadataEnabled);
