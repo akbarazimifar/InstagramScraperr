@@ -1,6 +1,9 @@
 package fe.igscraper.instagram;
 
-import com.google.gson.*;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import fe.igscraper.instagram.exception.InstagramLoginFailedException;
 import fe.igscraper.instagram.request.InstagramRequest;
 import fe.logger.Logger;
@@ -16,6 +19,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,6 +35,8 @@ public class InstagramAccount {
     public static final long RATE_LIMIT_DELAY = 1200000L;
     public static final String MID_URL = "https://www.instagram.com/web/__mid/";
     public static final String LOGIN_URL = "https://www.instagram.com/accounts/login/ajax/";
+    public static final String KEY_INFO = "https://www.instagram.com/data/shared_data/";
+    public static final String INSTAGRAM_PASSWORD_STRING = "#PWD_INSTAGRAM_BROWSER:%s:%d:%s";
     public static final String SESSION_TEST_URL = "https://www.instagram.com/graphql/query/?query_hash=d6f4427fbe92d846298cf93df0b937d3";
 
     public static final Pattern DATE_TIME_PATTERN = Pattern.compile(".*(\\%current_datetime\\{(.+)\\}\\%)");
@@ -103,7 +110,78 @@ public class InstagramAccount {
         obj.addProperty("sessionid", this.sessionId);
     }
 
-    private void generateNewSessionId() throws InstagramLoginFailedException, IOException {
+    private static final Random RANDOM = new Random();
+    private static final int GCM_TAG_LENGTH = 16;
+
+//    public static void main(String[] args) {
+//        try {
+//            encryptPassword("4jk41329@cock.li");
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+//    private String encryptPassword(String password) throws Exception {
+//        JsonObject object = (JsonObject) JsonParser.parseReader(new BufferedReader(new InputStreamReader(this.request.sendGetRequest(KEY_INFO).getInputStream())));
+//        JsonObject encryptionObj = object.get("encryption").getAsJsonObject();
+//
+//        String keyId = encryptionObj.get("key_id").getAsString();
+//        String pubKey = encryptionObj.get("public_key").getAsString();
+//        String version = encryptionObj.get("version").getAsString();
+//
+//        long time = System.currentTimeMillis() / 1000;
+//        byte[] keyBytes = Util.hexStringToByteArray(pubKey);
+//        byte[] key = new byte[32];
+//
+//        RANDOM.nextBytes(key);
+//
+//        byte[] iv = new byte[12];
+//
+//        byte[] plainText = password.getBytes();
+//
+//        AESGCm
+//
+//        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+//        SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
+//        GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, iv);
+//        cipher.init(Cipher.ENCRYPT_MODE, keySpec, gcmParameterSpec);
+//        cipher.updateAAD(String.valueOf(time).getBytes());
+//
+//        byte[] output = cipher.doFinal(plainText);
+//
+//        byte[] cipherText = new byte[output.length - GCM_TAG_LENGTH];
+//        byte[] tag = new byte[GCM_TAG_LENGTH];
+//
+//        System.arraycopy(output, 0, cipherText, 0, cipherText.length);
+//        System.arraycopy(output, output.length - GCM_TAG_LENGTH, tag, 0, tag.length);
+//
+//        SimpleBox box = new SimpleBox(keyBytes);
+//        byte[] encryptedKey = box.seal(key);
+//
+//        ByteBuffer buffer = ByteBuffer.allocate(2);
+//        buffer.putShort((short) encryptedKey.length);
+//        byte[] bytesOfLen = buffer.array();
+//
+//        byte[] info = new byte[]{1, (byte) Integer.parseInt(keyId)};
+//
+//        byte[] x1 = concat(info, bytesOfLen);
+//        byte[] x2 = concat(x1, encryptedKey);
+//        byte[] x3 = concat(x2, tag);
+//        byte[] x4 = concat(x3, cipherText);
+//
+//        String s = String.format(INSTAGRAM_PASSWORD_STRING, version, time, Base64.getEncoder().encodeToString(x4));
+//        System.out.println(s);
+//        return s;
+//    }
+
+
+    public static byte[] concat(byte[] first, byte[] second) {
+        byte[] result = Arrays.copyOf(first, first.length + second.length);
+        System.arraycopy(second, 0, result, first.length, second.length);
+        return result;
+    }
+
+    private void generateNewSessionId() throws IOException, InstagramLoginFailedException {
         this.request.putCookie(new Cookie("sessionid", "null"));
         InstagramRequest ir = new InstagramRequest(this.proxy, true);
         ir.putCookies(new Cookie("ig_pr", "1"), new Cookie("ig_vw", "1920"), new Cookie("ig_cb", "1"));
@@ -113,8 +191,15 @@ public class InstagramAccount {
         Cookie midCookie = RequestUtil.findCookie("mid", midCon);
         ir.putHeader(new Header("X-CSRFToken", csrftokenCookie.getValue()));
 
-        Cookie sessionCookie = null;
-        HttpURLConnection connection = ir.sendPostRequest(LOGIN_URL, new FormUrlEncoded(new String[][]{{"username", this.username}, {"password", this.password}}));
+        Cookie sessionCookie;
+        HttpURLConnection connection
+                = ir.sendPostRequest(LOGIN_URL, new FormUrlEncoded(
+                new String[][]{
+                        {"username", this.username},
+                        {"enc_password", String.format(INSTAGRAM_PASSWORD_STRING, 0, System.currentTimeMillis() / 1000, this.password)},
+                        {"queryParams", "{}"},
+                        {"optIntoOneTap", "false"}}));
+
         if (connection.getResponseCode() == 400) {
             JsonObject obj = (JsonObject) new JsonParser().parse(RequestUtil.readResponse(connection, RequestUtil.StreamType.ERRORSTREAM));
             String url = String.format("https://www.instagram.com%s", obj.getAsJsonPrimitive("checkpoint_url").getAsString());

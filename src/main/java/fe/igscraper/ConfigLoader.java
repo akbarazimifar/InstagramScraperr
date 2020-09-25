@@ -1,7 +1,7 @@
 package fe.igscraper;
 
+import com.google.gson.*;
 import fe.igscraper.sqlite.*;
-import fe.logger.*;
 import fe.igscraper.instagram.*;
 
 import java.io.*;
@@ -13,9 +13,11 @@ import java.util.*;
 import java.time.*;
 import java.sql.*;
 
-import com.google.gson.*;
+import fe.logger.Logger;
 import fe.request.*;
 import fe.request.proxy.AuthenticationProxy;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class ConfigLoader {
     private SQLiteDatabase database;
@@ -94,6 +96,7 @@ public class ConfigLoader {
                             id = idArray.get(i).getAsString();
                         } else {
                             this.logger.print(Logger.Type.WARNING, "No id found for user %s, searching now..", username);
+                            Thread.sleep(3000);
                             if ((id = this.findUserIdFromUsername(account, username)) == null) {
                                 this.logger.print(Logger.Type.ERROR, "Couldn't find id for user %s, skipping..", username);
                                 idArray.add("no id found");
@@ -101,6 +104,8 @@ public class ConfigLoader {
                                 idArray.add(id);
                             }
                         }
+
+                        this.logger.print(Logger.Type.INFO, "Checking if account %s (%s) exists (with %s)", username, id, account.getUsername());
                         if (this.checkExistsAccount(account, id)) {
                             this.users.add(account.loadUser(id, username, obj, dtNow, this.metadata).createTables(this.database));
                         } else {
@@ -110,9 +115,10 @@ public class ConfigLoader {
                 } else {
                     String username = usernameEl.getAsString();
                     InstagramAccount account = this.getInstagramAccount(username, (igLogin == null) ? null : igLogin.getAsString());
-                    String id = null;
+                    String id;
                     if (obj.getAsJsonPrimitive("id") == null) {
                         this.logger.print(Logger.Type.WARNING, "No id found for user %s, searching now..", username);
+                        Thread.sleep(3000);
                         if ((id = this.findUserIdFromUsername(account, username)) == null) {
                             this.logger.print(Logger.Type.ERROR, "Couldn't find id for user %s, skipping..", username);
                         }
@@ -127,7 +133,7 @@ public class ConfigLoader {
                         this.logger.print(Logger.Type.WARNING, "User %s (%s) does not seem to exist!", username, id);
                     }
                 }
-            } catch (IOException | SQLException e) {
+            } catch (IOException | SQLException | InterruptedException e) {
                 this.logger.print(Logger.Type.ERROR, "%s", e);
             }
         }
@@ -138,16 +144,19 @@ public class ConfigLoader {
     }
 
     private InstagramAccount getInstagramAccount(String username, String instagramLogin) {
-        InstagramAccount account = null;
+        InstagramAccount account;
         if (instagramLogin == null) {
-            this.logger.print(Logger.Type.INFO, "No login found for user %s, using account rotate", username);
             account = this.accounts.get(this.accountRotate++);
             if (this.accountRotate == this.accounts.size()) {
                 this.accountRotate = 0;
             }
+
+            this.logger.print(Logger.Type.INFO, "No login found for user %s, using account rotate: %s", username, account.getUsername());
         } else if ((account = this.findAccountByUsername(instagramLogin)) == null) {
             this.logger.print(Logger.Type.ERROR, "Failed to load user %s, because %s seems to be broken", username, instagramLogin);
         }
+
+
         return account;
     }
 
@@ -156,11 +165,18 @@ public class ConfigLoader {
     }
 
 
-    private String findUserIdFromUsername(InstagramAccount account, String username) throws IOException {
-        JsonObject obj = (JsonObject) new JsonParser().parse(RequestUtil.readResponse(account.sendGetRequest(String.format(ID_FINDER_URL, username))));
-        try {
-            return obj.getAsJsonArray("users").get(0).getAsJsonObject().getAsJsonObject("user").getAsJsonPrimitive("pk").getAsString();
-        } catch (Exception e) {
+    private String findUserIdFromUsername(InstagramAccount account, String username) throws IOException, JsonSyntaxException {
+        HttpURLConnection con = account.sendGetRequest(String.format(ID_FINDER_URL, username));
+        if (con.getResponseCode() == 200) {
+            String resp = RequestUtil.readResponse(con);
+            JsonObject obj = (JsonObject) new JsonParser().parse(resp);
+            try {
+                return obj.getAsJsonArray("users").get(0).getAsJsonObject().getAsJsonObject("user").getAsJsonPrimitive("pk").getAsString();
+            } catch (Exception e) {
+                return null;
+            }
+        } else {
+            logger.print(Logger.Type.ERROR, "Error while requesting id: %s", con.getResponseMessage());
             return null;
         }
     }
