@@ -1,23 +1,25 @@
 package fe.igscraper;
 
 import com.google.gson.*;
-import fe.igscraper.sqlite.*;
-import fe.igscraper.instagram.*;
-
-import java.io.*;
-import java.net.*;
-
-import fe.igscraper.instagram.exception.*;
-
-import java.util.*;
-import java.time.*;
-import java.sql.*;
-
+import fe.igscraper.instagram.InstagramAccount;
+import fe.igscraper.instagram.InstagramUser;
+import fe.igscraper.instagram.exception.InstagramLoginFailedException;
+import fe.igscraper.sqlite.SQLiteDatabase;
 import fe.logger.Logger;
-import fe.request.*;
+import fe.request.RequestUtil;
 import fe.request.proxy.AuthenticationProxy;
 
-import javax.net.ssl.HttpsURLConnection;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConfigLoader {
     private SQLiteDatabase database;

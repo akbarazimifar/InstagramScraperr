@@ -84,8 +84,6 @@ public class InstagramAccount {
             this.logger.print(Logger.Type.INFO, "Retrying..");
         }
 
-//        System.out.println("response code " + con.getResponseCode() + " for url " + url);
-
         return this.readJson(con);
     }
 
@@ -214,7 +212,7 @@ public class InstagramAccount {
             String code = scanner.nextLine().trim();
 
             HttpURLConnection securityConnection = ir.sendPostRequest(url, new FormUrlEncoded(new String[][]{{"security_code", code}}));
-            String securityResponse = RequestUtil.readResponse(securityConnection, RequestUtil.StreamType.ERRORSTREAM);
+            String securityResponse = RequestUtil.readResponse(securityConnection, RequestUtil.StreamType.decide(securityConnection));
             JsonObject securityResponseObj = (JsonObject) new JsonParser().parse(securityResponse);
             if (!securityResponseObj.getAsJsonPrimitive("status").getAsString().equalsIgnoreCase("ok")) {
                 throw new UnsupportedOperationException("Replay will be implemented soon");

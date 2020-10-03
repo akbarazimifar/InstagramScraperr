@@ -30,7 +30,10 @@ dependencies {
     compile group: 'com.gitlab.grrfe', name: 'BinaryVersion', version: '2.1.0'
     compile group: 'com.gitlab.grrfe', name: 'MediaPlayer-Fix', version: '1.0.0'
     compile group: 'net.sourceforge.argparse4j', name: 'argparse4j', version: '0.8.1'
-    compile group: 'com.google.code.gson', name: 'gson', version: '2.8.5'
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.8.6'
+//    compile 'com.codahale:xsalsa20poly1305:0.11.0'
+//    implementation 'com.github.picketlink:picketlink:-SNAPSHOT'
+
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 

@@ -36,7 +36,7 @@ public class ContentManager {
         }
     }
 
-    public void downloadContent() {
+    public void downloadContent() throws InterruptedException {
         for (InstagramUser user : this.users) {
             for (int size = user.getContent().size(), i = 0; i < size; ++i) {
                 InstagramContent content = user.getNewContent(i);
@@ -48,6 +48,8 @@ public class ContentManager {
                     content.printLog(Logger.Type.ERROR, String.format("Failed download of %s (%d/%d): %s", content.getContentType(), i + 1, size, e.getMessage()));
                     e.printStackTrace();
                 }
+
+                Thread.sleep(2000);
             }
         }
     }
