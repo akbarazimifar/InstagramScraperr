@@ -76,7 +76,8 @@ public class InstagramAccount {
 
     private JsonElement readGetRequestJson(String url, RequestOverride requestOverride) throws IOException {
         HttpURLConnection con;
-        while ((con = this.request.sendGetRequest(url, requestOverride)) == null) {
+
+        while ((con = this.request.sendGetRequest(url, requestOverride)).getResponseCode() == 429) {
             this.logger.print(Logger.Type.WARNING, "Account ratelimited, going to sleep for %dseconds..", RATE_LIMIT_DELAY / 10000);
             try {
                 Thread.sleep(RATE_LIMIT_DELAY);
