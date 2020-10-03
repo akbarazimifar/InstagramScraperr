@@ -9,10 +9,7 @@ import fe.logger.Logger;
 import fe.request.RequestUtil;
 import fe.request.proxy.AuthenticationProxy;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -108,8 +105,9 @@ public class ConfigLoader {
                         }
 
                         this.logger.print(Logger.Type.INFO, "Checking if account %s (%s) exists (with %s)", username, id, account.getUsername());
-                        if (this.checkExistsAccount(account, id)) {
-                            this.users.add(account.loadUser(id, username, obj, dtNow, this.metadata).createTables(this.database));
+                        AccountType type = this.checkExistsAccount(account, id);
+                        if (type != AccountType.NON_EXISTENT) {
+                            this.users.add(account.loadUser(id, username, obj, dtNow, this.metadata, type).createTables(this.database));
                         } else {
                             this.logger.print(Logger.Type.WARNING, "User %s (%s) does not seem to exist!", username, id);
                         }
@@ -129,8 +127,9 @@ public class ConfigLoader {
                         id = obj.getAsJsonPrimitive("id").getAsString();
                     }
 
-                    if (this.checkExistsAccount(account, id)) {
-                        this.users.add(account.loadUser(id, username, obj, dtNow, this.metadata).createTables(this.database));
+                    AccountType type = this.checkExistsAccount(account, id);
+                    if (type != AccountType.NON_EXISTENT) {
+                        this.users.add(account.loadUser(id, username, obj, dtNow, this.metadata, type).createTables(this.database));
                     } else {
                         this.logger.print(Logger.Type.WARNING, "User %s (%s) does not seem to exist!", username, id);
                     }
@@ -141,8 +140,18 @@ public class ConfigLoader {
         }
     }
 
-    private boolean checkExistsAccount(InstagramAccount account, String id) throws IOException {
-        return account.sendGetRequest(String.format(CHECK_ACCOUNT_URL, id), CHECK_ACCOUNT_USERAGENT).getResponseCode() == 200;
+    private AccountType checkExistsAccount(InstagramAccount account, String id) throws IOException {
+        HttpURLConnection con = account.sendGetRequest(String.format(CHECK_ACCOUNT_URL, id), CHECK_ACCOUNT_USERAGENT);
+        if (con.getResponseCode() == 200) {
+            JsonObject obj = (JsonObject) JsonParser.parseReader(new BufferedReader(new InputStreamReader(con.getInputStream())));
+            return obj.getAsJsonObject("user").getAsJsonPrimitive("is_private").getAsBoolean() ? AccountType.PRIVATE : AccountType.NON_PRIVATE;
+        }
+
+        return AccountType.NON_EXISTENT;
+    }
+
+    public enum AccountType {
+        NON_EXISTENT, PRIVATE, NON_PRIVATE;
     }
 
     private InstagramAccount getInstagramAccount(String username, String instagramLogin) {

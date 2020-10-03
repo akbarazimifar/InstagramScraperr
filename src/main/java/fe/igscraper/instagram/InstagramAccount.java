@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import fe.igscraper.ConfigLoader;
 import fe.igscraper.instagram.exception.InstagramLoginFailedException;
 import fe.igscraper.instagram.request.InstagramRequest;
 import fe.logger.Logger;
@@ -238,7 +239,7 @@ public class InstagramAccount {
         return this.request.sendGetRequest(SESSION_TEST_URL).getResponseCode() == 200;
     }
 
-    public InstagramUser loadUser(String id, String username, JsonObject obj, LocalDateTime now, boolean metadata) throws IOException {
+    public InstagramUser loadUser(String id, String username, JsonObject obj, LocalDateTime now, boolean metadata, ConfigLoader.AccountType type) {
         String saveFolder = obj.getAsJsonPrimitive("save_folder").getAsString();
         Matcher matcher = InstagramAccount.DATE_TIME_PATTERN.matcher(saveFolder);
         if (matcher.matches()) {
@@ -249,7 +250,7 @@ public class InstagramAccount {
         if (obj.getAsJsonPrimitive("overwrite_files") != null) {
             overwriteFiles = obj.getAsJsonPrimitive("overwrite_files").getAsBoolean();
         }
-        InstagramUser instagramUser = new InstagramUser(id, username, new File(saveFolder), overwriteFiles, this);
+        InstagramUser instagramUser = new InstagramUser(id, username, new File(saveFolder), overwriteFiles, type == ConfigLoader.AccountType.PRIVATE, this);
         for (JsonElement saveJe : obj.getAsJsonArray("save")) {
             InstagramUser.ContentType ct;
             if (saveJe.isJsonPrimitive()) {

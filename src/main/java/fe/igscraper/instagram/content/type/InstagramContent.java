@@ -5,10 +5,12 @@ import fe.logger.*;
 import fe.igscraper.instagram.content.metadata.*;
 import fe.igscraper.sqlite.*;
 
+import java.net.HttpURLConnection;
 import java.time.*;
 import java.sql.*;
 
 import com.google.gson.*;
+import fe.request.Request;
 
 import java.util.*;
 import java.io.*;
@@ -22,6 +24,8 @@ public abstract class InstagramContent {
     private Metadata metadata;
     protected boolean metadataEnabled;
     private static final String STORE_SQL = "INSERT INTO %s (url, datetime) VALUES (?, ?)";
+
+    private static final Request ANONYMOUS_REQUEST = new Request(true);
 
     public InstagramContent(InstagramUser.ContentType contentType, String fileNameScheme, InstagramUser instagramUser, boolean metadataEnabled) {
         this.urls = new HashMap<>();
@@ -88,8 +92,10 @@ public abstract class InstagramContent {
             } else {
                 canDownload = true;
             }
+
             if (canDownload) {
-                this.download(new FileOutputStream(outputFile), this.instagramUser.sendGetRequest(ent.getKey()).getInputStream());
+                HttpURLConnection con = (this.instagramUser.isPrivate() ? this.instagramUser.sendGetRequest(ent.getKey()) : ANONYMOUS_REQUEST.sendGetRequest(ent.getKey()));
+                this.download(new FileOutputStream(outputFile), con.getInputStream());
             }
         }
     }

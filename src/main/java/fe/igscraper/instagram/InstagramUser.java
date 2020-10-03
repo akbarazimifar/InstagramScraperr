@@ -25,15 +25,21 @@ public class InstagramUser {
     private final List<InstagramContent> newContent;
 
     private static final String CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS %s (id integer PRIMARY KEY AUTOINCREMENT, url text NOT NULL, datetime text)";
+    private final boolean isPrivate;
 
-    public InstagramUser(String id, String username, File saveFolder, boolean overwriteFiles, InstagramAccount account) {
+    public InstagramUser(String id, String username, File saveFolder, boolean overwriteFiles, boolean isPrivate, InstagramAccount account) {
         this.contentTypes = new ArrayList<>();
         this.newContent = new ArrayList<>();
         this.id = id;
         this.username = username;
         this.saveFolder = saveFolder;
         this.overwriteFiles = overwriteFiles;
+        this.isPrivate = isPrivate;
         this.account = account;
+    }
+
+    public boolean isPrivate() {
+        return isPrivate;
     }
 
     public void enableType(ContentType ct) {
