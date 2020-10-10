@@ -26,7 +26,7 @@ repositories {
 dependencies {
     compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.28.0'
     compile group: 'com.gitlab.grrfe', name: 'Logger', version: '1.0.0'
-    compile group: 'com.gitlab.grrfe', name: 'Request', version: '2.0.2'
+    compile 'com.gitlab.grrfe:Request:2.1.1'
     compile group: 'com.gitlab.grrfe', name: 'BinaryVersion', version: '2.1.0'
     compile group: 'com.gitlab.grrfe', name: 'MediaPlayer-Fix', version: '1.0.0'
     compile group: 'net.sourceforge.argparse4j', name: 'argparse4j', version: '0.8.1'
