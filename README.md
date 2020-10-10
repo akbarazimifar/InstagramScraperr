@@ -56,3 +56,5 @@ named arguments:
 ```
 
 (Optional: Put the binary and a config file in the same folder)
+
+Repo icon taken from: [Instagram Logo Vectors by Vecteezy](https://www.vecteezy.com/free-vector/instagram-logo)
