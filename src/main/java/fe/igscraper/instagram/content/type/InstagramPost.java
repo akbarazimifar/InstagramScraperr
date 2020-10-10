@@ -6,9 +6,8 @@ import java.io.*;
 
 import com.google.gson.*;
 
-import java.util.*;
-
 import fe.igscraper.instagram.util.*;
+import fe.request.Request;
 
 public class InstagramPost extends InstagramContent {
     private final String shortCode;
@@ -33,9 +32,9 @@ public class InstagramPost extends InstagramContent {
     }
 
     @Override
-    public void download() throws IOException {
+    public void download(Request request) throws IOException {
         this.findDirectUrls();
-        super.download();
+        super.download(request);
     }
 
     @Override

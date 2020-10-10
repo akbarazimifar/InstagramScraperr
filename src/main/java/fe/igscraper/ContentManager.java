@@ -7,8 +7,11 @@ import fe.igscraper.instagram.*;
 import java.io.*;
 import java.sql.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import fe.igscraper.instagram.content.type.*;
+import fe.request.Request;
+import fe.request.proxy.AuthenticationProxy;
 
 public class ContentManager {
     private SQLiteDatabase database;
@@ -36,14 +39,26 @@ public class ContentManager {
         }
     }
 
-    public void downloadContent() throws InterruptedException {
+    private int proxyCounter;
+
+    public void downloadContent(List<AuthenticationProxy> dlProxies) throws InterruptedException {
+        List<Request> proxyRequests = dlProxies.stream().map(ap -> new Request(ap, false)).collect(Collectors.toList());
+        Request req = new Request(false);
         for (InstagramUser user : this.users) {
             for (int size = user.getContent().size(), i = 0; i < size; ++i) {
+                if (!proxyRequests.isEmpty()) {
+                    req = proxyRequests.get(this.proxyCounter++);
+                    if (this.proxyCounter == proxyRequests.size()) {
+                        this.proxyCounter = 0;
+                    }
+                }
+
                 InstagramContent content = user.getNewContent(i);
                 try {
-                    content.download();
+                    content.download(req);
                     int response = content.storeDatabase(this.database);
-                    content.printLog(Logger.Type.INFO, String.format("Downloaded %s (%d/%d, db: %d)", content.getContentType(), i + 1, size, response));
+                    content.printLog(Logger.Type.INFO, String.format("Downloaded %s (%d/%d, proxy: %s, db: %d)",
+                            content.getContentType(), i + 1, size, req.getProxy().getProxy(), response));
                 } catch (IOException | SQLException e) {
                     content.printLog(Logger.Type.ERROR, String.format("Failed download of %s (%d/%d): %s", content.getContentType(), i + 1, size, e.getMessage()));
                     e.printStackTrace();
@@ -53,4 +68,6 @@ public class ContentManager {
             }
         }
     }
+
+
 }

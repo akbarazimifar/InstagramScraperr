@@ -48,25 +48,48 @@ public class ConfigLoader {
             String username = obj.getAsJsonPrimitive("username").getAsString();
             String password = obj.getAsJsonPrimitive("password").getAsString();
             AuthenticationProxy instagramProxy = new AuthenticationProxy();
-            JsonObject proxyObj;
-            if ((proxyObj = obj.getAsJsonObject("proxy")) != null) {
-                JsonObject authObj;
-                if ((authObj = proxyObj.getAsJsonObject("auth")) != null) {
-                    instagramProxy.setUsername(authObj.getAsJsonPrimitive("username").getAsString());
-                    instagramProxy.setPassword(authObj.getAsJsonPrimitive("password").getAsString());
-                }
-                instagramProxy.setProxy(new Proxy(Proxy.Type.valueOf(proxyObj.getAsJsonPrimitive("type").getAsString()), new InetSocketAddress(proxyObj.getAsJsonPrimitive("ip").getAsString(), proxyObj.getAsJsonPrimitive("port").getAsInt())));
+            JsonObject proxyObj = obj.getAsJsonObject("proxy");
+            if (proxyObj != null) {
+                instagramProxy = loadProxy(proxyObj);
             }
-            InstagramAccount session = new InstagramAccount(username, password, (obj.getAsJsonPrimitive("sessionid") == null) ? null : obj.getAsJsonPrimitive("sessionid").getAsString(), instagramProxy);
+
+            InstagramAccount session = new InstagramAccount(username, password,
+                    (obj.getAsJsonPrimitive("sessionid") == null) ? null : obj.getAsJsonPrimitive("sessionid").getAsString(),
+                    instagramProxy);
             try {
                 this.logger.print(Logger.Type.INFO, "Loaded account %s", username);
                 session.login(obj);
                 this.accounts.add(session);
             } catch (IOException e) {
                 this.logger.print(Logger.Type.ERROR, e.getMessage());
-            } catch (InstagramLoginFailedException ex) {
+            } catch (InstagramLoginFailedException ignored) {
             }
         }
+    }
+
+    private AuthenticationProxy loadProxy(JsonObject proxyObj) {
+        AuthenticationProxy instagramProxy = new AuthenticationProxy();
+        JsonObject authObj;
+        if ((authObj = proxyObj.getAsJsonObject("auth")) != null) {
+            instagramProxy.setUsername(authObj.getAsJsonPrimitive("username").getAsString());
+            instagramProxy.setPassword(authObj.getAsJsonPrimitive("password").getAsString());
+        }
+        instagramProxy.setProxy(new Proxy(Proxy.Type.valueOf(proxyObj.getAsJsonPrimitive("type").getAsString()), new InetSocketAddress(proxyObj.getAsJsonPrimitive("ip").getAsString(), proxyObj.getAsJsonPrimitive("port").getAsInt())));
+
+        return instagramProxy;
+    }
+
+    public List<AuthenticationProxy> loadDownloadProxies() {
+        List<AuthenticationProxy> proxies = new ArrayList<>();
+
+        JsonArray downloadProxies = this.jsonConfig.getAsJsonArray("download_proxies");
+        for (JsonElement el : downloadProxies) {
+            JsonObject obj = (JsonObject) el;
+            proxies.add(loadProxy(obj));
+        }
+
+        logger.print(Logger.Type.INFO, "Loaded %d download proxies", proxies.size());
+        return proxies;
     }
 
     public void loadUsers() {
@@ -79,7 +102,7 @@ public class ConfigLoader {
                 JsonElement idEl = obj.get("id");
                 JsonPrimitive igLogin = obj.getAsJsonPrimitive("instagram_login");
                 if (usernameEl.isJsonArray()) {
-                    JsonArray idArray = null;
+                    JsonArray idArray;
                     if (idEl == null) {
                         idArray = new JsonArray();
                         obj.add("id", idArray);
@@ -90,7 +113,7 @@ public class ConfigLoader {
                     for (int i = 0; i < usernameElArray.size(); ++i) {
                         String username = usernameElArray.get(i).getAsString();
                         InstagramAccount account = this.getInstagramAccount(username, (igLogin == null) ? null : igLogin.getAsString());
-                        String id = null;
+                        String id;
                         if (i < idArray.size()) {
                             id = idArray.get(i).getAsString();
                         } else {
@@ -105,12 +128,7 @@ public class ConfigLoader {
                         }
 
                         this.logger.print(Logger.Type.INFO, "Checking if account %s (%s) exists (with %s)", username, id, account.getUsername());
-                        AccountType type = this.checkExistsAccount(account, id);
-                        if (type != AccountType.NON_EXISTENT) {
-                            this.users.add(account.loadUser(id, username, obj, dtNow, this.metadata, type).createTables(this.database));
-                        } else {
-                            this.logger.print(Logger.Type.WARNING, "User %s (%s) does not seem to exist!", username, id);
-                        }
+                        this.addAccountIfExists(dtNow, obj, username, account, id);
                     }
                 } else {
                     String username = usernameEl.getAsString();
@@ -127,16 +145,20 @@ public class ConfigLoader {
                         id = obj.getAsJsonPrimitive("id").getAsString();
                     }
 
-                    AccountType type = this.checkExistsAccount(account, id);
-                    if (type != AccountType.NON_EXISTENT) {
-                        this.users.add(account.loadUser(id, username, obj, dtNow, this.metadata, type).createTables(this.database));
-                    } else {
-                        this.logger.print(Logger.Type.WARNING, "User %s (%s) does not seem to exist!", username, id);
-                    }
+                    this.addAccountIfExists(dtNow, obj, username, account, id);
                 }
             } catch (IOException | SQLException | InterruptedException e) {
                 this.logger.print(Logger.Type.ERROR, "%s", e);
             }
+        }
+    }
+
+    private void addAccountIfExists(LocalDateTime dtNow, JsonObject obj, String username, InstagramAccount account, String id) throws IOException, SQLException {
+        AccountType type = this.checkExistsAccount(account, id);
+        if (type != AccountType.NON_EXISTENT) {
+            this.users.add(account.loadUser(id, username, obj, dtNow, this.metadata, type).createTables(this.database));
+        } else {
+            this.logger.print(Logger.Type.WARNING, "User %s (%s) does not seem to exist!", username, id);
         }
     }
 

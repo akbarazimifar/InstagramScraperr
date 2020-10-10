@@ -4,6 +4,7 @@ import fe.binaryversion.BinaryVersion;
 import fe.igscraper.instagram.util.Util;
 import fe.logger.Logger;
 import fe.mediaplayer.Player;
+import fe.request.proxy.AuthenticationProxy;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
@@ -14,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 public class Main {
     private static final String APP_NAME = "InstagramScraper";
@@ -32,11 +34,14 @@ public class Main {
 
             ConfigLoader configLoader = new ConfigLoader(config, metadata);
             configLoader.loadLogins();
+            Util.writeJson(config, configLoader.getJsonConfig());
+
+            List<AuthenticationProxy> dlProxies = configLoader.loadDownloadProxies();
             configLoader.loadUsers();
 
             ContentManager contentManager = new ContentManager(configLoader.getDatabase(), configLoader.getUsers());
             contentManager.findContent();
-            contentManager.downloadContent();
+            contentManager.downloadContent(dlProxies);
 
             Util.writeJson(config, configLoader.getJsonConfig());
 

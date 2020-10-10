@@ -25,7 +25,6 @@ public abstract class InstagramContent {
     protected boolean metadataEnabled;
     private static final String STORE_SQL = "INSERT INTO %s (url, datetime) VALUES (?, ?)";
 
-    private static final Request ANONYMOUS_REQUEST = new Request(true);
 
     public InstagramContent(InstagramUser.ContentType contentType, String fileNameScheme, InstagramUser instagramUser, boolean metadataEnabled) {
         this.urls = new HashMap<>();
@@ -67,7 +66,7 @@ public abstract class InstagramContent {
         this.logger.print(type, message);
     }
 
-    public void download() throws IOException {
+    public void download(Request request) throws IOException {
         if (!this.instagramUser.getSaveFolder().exists()) {
             this.instagramUser.getSaveFolder().mkdirs();
         }
@@ -94,7 +93,7 @@ public abstract class InstagramContent {
             }
 
             if (canDownload) {
-                HttpURLConnection con = (this.instagramUser.isPrivate() ? this.instagramUser.sendGetRequest(ent.getKey()) : ANONYMOUS_REQUEST.sendGetRequest(ent.getKey()));
+                HttpURLConnection con = (this.instagramUser.isPrivate() ? this.instagramUser.sendGetRequest(ent.getKey()) : request.sendGetRequest(ent.getKey()));
                 this.download(new FileOutputStream(outputFile), con.getInputStream());
             }
         }
