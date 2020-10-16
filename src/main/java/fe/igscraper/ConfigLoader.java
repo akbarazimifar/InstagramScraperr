@@ -83,9 +83,11 @@ public class ConfigLoader {
         List<AuthenticationProxy> proxies = new ArrayList<>();
 
         JsonArray downloadProxies = this.jsonConfig.getAsJsonArray("download_proxies");
-        for (JsonElement el : downloadProxies) {
-            JsonObject obj = (JsonObject) el;
-            proxies.add(loadProxy(obj));
+        if (downloadProxies != null) {
+            for (JsonElement el : downloadProxies) {
+                JsonObject obj = (JsonObject) el;
+                proxies.add(loadProxy(obj));
+            }
         }
 
         logger.print(Logger.Type.INFO, "Loaded %d download proxies", proxies.size());
