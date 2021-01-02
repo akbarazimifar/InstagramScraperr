@@ -1,28 +1,29 @@
 # InstagramScraper
 
-Java commandline Instagram scraper to easily download new content
+Java commandline incremental Instagram scraper
 
-***Supported content***
+## Supported content
 
 `Posts`, `Stories`, `Profile pictures (fullsize)`, `Collections`
 
-***Features***
+## Features
 
 * Scrape multiple Instagram accounts
 * Use multiple accounts to scrape to avoid bot detection
 * Scrape private accounts (if you have an account which follows the private one)
-* Proxy support
+* Proxy support (for account login and download)
+* Avoid ratelimits using custom scrape-sleep behavior
 * Database storage to mark downloaded content
 * Dynamic foldermanagement to easily sort the downloaded content
 * Sessionstorage 
 
-***Requirements***
+## Requirements
 
 * Java 8
 * (on linux: OpenJFX 8)
 
 
-***Downloads***
+## Downloads
 
 * [Releases](https://gitlab.com/grrfe/InstagramScraper/-/releases)
 
