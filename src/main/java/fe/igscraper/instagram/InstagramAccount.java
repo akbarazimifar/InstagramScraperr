@@ -33,7 +33,7 @@ public class InstagramAccount {
     private final Logger logger;
     private String sessionId;
     private final InstagramRequest request;
-    public static final long RATE_LIMIT_DELAY = 1200000L;
+    public static final long RATE_LIMIT_DELAY = 1000 * 120;
     public static final String MID_URL = "https://www.instagram.com/web/__mid/";
     public static final String LOGIN_URL = "https://www.instagram.com/accounts/login/ajax/";
     public static final String KEY_INFO = "https://www.instagram.com/data/shared_data/";
@@ -77,12 +77,15 @@ public class InstagramAccount {
     private JsonElement readGetRequestJson(String url, RequestOverride requestOverride) throws IOException {
         HttpURLConnection con;
 
+        int rateLimitCounter = 0;
         while ((con = this.request.sendGetRequest(url, requestOverride)).getResponseCode() == 429) {
-            this.logger.print(Logger.Type.WARNING, "Account ratelimited, going to sleep for %dseconds..", RATE_LIMIT_DELAY / 10000);
+            this.logger.print(Logger.Type.WARNING, "Account ratelimited (times: %d), going to sleep for %dseconds..", rateLimitCounter, RATE_LIMIT_DELAY / 1000);
             try {
                 Thread.sleep(RATE_LIMIT_DELAY);
-            } catch (InterruptedException ignored) {
+            } catch (InterruptedException e) {
+                this.logger.print(Logger.Type.ERROR, e + "");
             }
+            rateLimitCounter++;
             this.logger.print(Logger.Type.INFO, "Retrying..");
         }
 
@@ -115,7 +118,7 @@ public class InstagramAccount {
 
 //    public static void main(String[] args) {
 //        try {
-//            encryptPassword("4jk41329@cock.li");
+//            encryptPassword("@cock.li");
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
