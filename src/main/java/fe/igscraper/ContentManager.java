@@ -12,20 +12,24 @@ import java.util.stream.Collectors;
 import fe.igscraper.instagram.content.type.*;
 import fe.request.Request;
 import fe.request.proxy.AuthenticationProxy;
+import javafx.util.Pair;
 
 public class ContentManager {
+    private final Pair<Long, Integer> sleepAmount;
     private SQLiteDatabase database;
     private Logger logger;
     private List<InstagramUser> users;
 
-    public ContentManager(SQLiteDatabase database, List<InstagramUser> users) {
+    public ContentManager(Pair<Long, Integer> sleepSecondsAfterUserFetch, SQLiteDatabase database, List<InstagramUser> users) {
         this.logger = new Logger("ContentManager", true);
+        this.sleepAmount = sleepSecondsAfterUserFetch;
         this.database = database;
         this.users = users;
     }
 
     public void findContent() {
-        for (InstagramUser user : this.users) {
+        for (int i = 0; i < this.users.size(); i++) {
+            InstagramUser user = this.users.get(i);
             for (InstagramUser.ContentType contentType : user.getContentTypes()) {
                 try {
                     List<String> databaseContent = contentType.queryDatabase(this.database, user);
@@ -34,6 +38,17 @@ public class ContentManager {
                     this.logger.print(Logger.Type.INFO, "Found  %-6d new %s for user %s", size, contentType.name(), user.getUsername());
                 } catch (IOException | SQLException e) {
                     e.printStackTrace();
+                }
+            }
+
+            if (sleepAmount.getValue() != 0) {
+                if ((i + 1) % sleepAmount.getValue() == 0) {
+                    this.logger.print(Logger.Type.INFO, "%d-th user, going to sleep for %dseconds", sleepAmount.getValue(), sleepAmount.getKey() / 1000);
+                    try {
+                        Thread.sleep(sleepAmount.getKey());
+                    } catch (InterruptedException e) {
+                        this.logger.print(Logger.Type.ERROR, "" + e);
+                    }
                 }
             }
         }

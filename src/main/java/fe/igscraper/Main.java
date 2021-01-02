@@ -5,6 +5,7 @@ import fe.igscraper.instagram.util.Util;
 import fe.logger.Logger;
 import fe.mediaplayer.Player;
 import fe.request.proxy.AuthenticationProxy;
+import javafx.util.Pair;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
@@ -34,12 +35,13 @@ public class Main {
 
             ConfigLoader configLoader = new ConfigLoader(config, metadata);
             configLoader.loadLogins();
+            Pair<Long, Integer> sleepAmount = configLoader.loadSleep();
             Util.writeJson(config, configLoader.getJsonConfig());
 
             List<AuthenticationProxy> dlProxies = configLoader.loadDownloadProxies();
             configLoader.loadUsers();
 
-            ContentManager contentManager = new ContentManager(configLoader.getDatabase(), configLoader.getUsers());
+            ContentManager contentManager = new ContentManager(sleepAmount, configLoader.getDatabase(), configLoader.getUsers());
             contentManager.findContent();
             contentManager.downloadContent(dlProxies);
 

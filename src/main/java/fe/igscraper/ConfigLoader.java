@@ -8,6 +8,7 @@ import fe.igscraper.sqlite.SQLiteDatabase;
 import fe.logger.Logger;
 import fe.request.RequestUtil;
 import fe.request.proxy.AuthenticationProxy;
+import javafx.util.Pair;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -40,6 +41,22 @@ public class ConfigLoader {
         this.jsonConfig = (JsonObject) new JsonParser().parse(new BufferedReader(new FileReader(config)));
         this.database = new SQLiteDatabase(this.jsonConfig.getAsJsonPrimitive("database_path").getAsString());
         this.metadata = metadata;
+    }
+
+    public Pair<Long, Integer> loadSleep() {
+        JsonObject obj = this.jsonConfig.getAsJsonObject("sleep");
+        if (obj != null) {
+            JsonPrimitive primAmount = obj.getAsJsonPrimitive("amount");
+            JsonPrimitive primAfterXUser = obj.getAsJsonPrimitive("afterXUser");
+
+            if (primAmount != null && primAfterXUser != null) {
+                Pair<Long, Integer> pair = new Pair<>(primAmount.getAsLong(), primAfterXUser.getAsInt());
+                this.logger.print(Logger.Type.INFO, "Loaded sleep pattern: %d seconds after %d users", pair.getKey() / 1000, pair.getValue());
+                return pair;
+            }
+        }
+
+        return new Pair<>(0L, 0);
     }
 
     public void loadLogins() {
