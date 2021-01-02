@@ -2,10 +2,10 @@ package fe.igscraper;
 
 import fe.binaryversion.BinaryVersion;
 import fe.igscraper.instagram.util.Util;
+import fe.igscraper.util.Pair;
 import fe.logger.Logger;
 import fe.mediaplayer.Player;
 import fe.request.proxy.AuthenticationProxy;
-import javafx.util.Pair;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentParser;

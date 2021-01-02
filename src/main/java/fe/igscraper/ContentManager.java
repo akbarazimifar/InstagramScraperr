@@ -1,6 +1,7 @@
 package fe.igscraper;
 
 import fe.igscraper.sqlite.*;
+import fe.igscraper.util.Pair;
 import fe.logger.*;
 import fe.igscraper.instagram.*;
 
@@ -12,7 +13,6 @@ import java.util.stream.Collectors;
 import fe.igscraper.instagram.content.type.*;
 import fe.request.Request;
 import fe.request.proxy.AuthenticationProxy;
-import javafx.util.Pair;
 
 public class ContentManager {
     private final Pair<Long, Integer> sleepAmount;

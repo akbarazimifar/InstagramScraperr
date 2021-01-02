@@ -5,10 +5,10 @@ import fe.igscraper.instagram.InstagramAccount;
 import fe.igscraper.instagram.InstagramUser;
 import fe.igscraper.instagram.exception.InstagramLoginFailedException;
 import fe.igscraper.sqlite.SQLiteDatabase;
+import fe.igscraper.util.Pair;
 import fe.logger.Logger;
 import fe.request.RequestUtil;
 import fe.request.proxy.AuthenticationProxy;
-import javafx.util.Pair;
 
 import java.io.*;
 import java.net.HttpURLConnection;
